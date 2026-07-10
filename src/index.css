@@ -1,0 +1,14 @@
+@import "tailwindcss";
+
+:root {
+  font-family: "Cairo", system-ui, sans-serif;
+}
+
+.custom-pin {
+  background: transparent !important;
+  border: none !important;
+}
+
+.leaflet-container {
+  font-family: "Cairo", system-ui, sans-serif;
+}
