@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IRFC - Centre National des Sports Moulay Rachid</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif}
+:root{--primary:#1a237e;--primary-light:#283593;--primary-dark:#0d1452;--gold:#c9a84c;--gold-light:#e0c56a;--bg:#f0f2f5;--card:#fff;--text:#333;--text-light:#666;--border:#e0e0e0;--success:#2e7d32;--danger:#c62828;--warning:#f57f17;--info:#0277bd}
+body{background:var(--bg);color:var(--text);display:flex;min-height:100vh}
+.sidebar{width:260px;background:var(--primary);color:#fff;position:fixed;height:100vh;overflow-y:auto;z-index:100;transition:.3s;left:-260px}
+.sidebar.open{left:0}
+.sidebar-header{padding:20px;text-align:center;border-bottom:1px solid rgba(255,255,255,.1)}
+.sidebar-header h2{font-size:16px;color:var(--gold)}
+.sidebar-header small{font-size:11px;opacity:.7}
+.sidebar .user-info{padding:12px 20px;background:rgba(255,255,255,.05);font-size:13px;border-bottom:1px solid rgba(255,255,255,.1)}
+.sidebar .user-info i{margin-right:8px;color:var(--gold)}
+.nav-item{padding:12px 20px;cursor:pointer;display:flex;align-items:center;gap:12px;font-size:13px;transition:.2s;border-left:3px solid transparent}
+.nav-item:hover{background:rgba(255,255,255,.1)}
+.nav-item.active{background:rgba(255,255,255,.15);border-left-color:var(--gold);color:var(--gold)}
+.nav-item i{width:20px;text-align:center}
+.nav-section{padding:15px 20px 5px;font-size:10px;text-transform:uppercase;opacity:.5;letter-spacing:1px}
+.main{flex:1;margin-left:0;transition:.3s;width:100%}
+.main.shifted{margin-left:260px}
+.topbar{background:var(--card);padding:12px 25px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 1px 3px rgba(0,0,0,.08);position:sticky;top:0;z-index:50}
+.topbar-left{display:flex;align-items:center;gap:15px}
+.menu-toggle{background:none;border:none;font-size:22px;cursor:pointer;color:var(--primary);padding:5px}
+.topbar-title{font-size:16px;font-weight:600;color:var(--primary)}
+.topbar-right{display:flex;align-items:center;gap:15px}
+.topbar-right .user-badge{font-size:13px;color:var(--text-light)}
+.topbar-right .role-badge{background:var(--gold);color:#fff;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600}
+.btn-logout{background:none;border:1px solid var(--border);padding:6px 14px;border-radius:6px;cursor:pointer;font-size:13px;color:var(--text)}
+.btn-logout:hover{background:#f5f5f5}
+.content{padding:25px;max-width:1400px;margin:0 auto}
+.page{display:none}
+.page.active{display:block}
+.page-title{font-size:22px;font-weight:600;color:var(--primary);margin-bottom:5px}
+.page-subtitle{color:var(--text-light);font-size:13px;margin-bottom:20px}
+.card{background:var(--card);border-radius:10px;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,.06);margin-bottom:20px}
+.card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;flex-wrap:wrap;gap:10px}
+.card-title{font-size:16px;font-weight:600}
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:15px;margin-bottom:20px}
+.stat-card{background:var(--card);border-radius:10px;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,.06);border-left:4px solid var(--primary)}
+.stat-card .stat-icon{font-size:28px;color:var(--primary);margin-bottom:8px}
+.stat-card .stat-value{font-size:24px;font-weight:700;color:var(--primary)}
+.stat-card .stat-label{font-size:12px;color:var(--text-light);margin-top:3px}
+.stat-card.gold{border-left-color:var(--gold)}
+.stat-card.gold .stat-icon,.stat-card.gold .stat-value{color:var(--gold)}
+.stat-card.green{border-left-color:var(--success)}
+.stat-card.green .stat-icon,.stat-card.green .stat-value{color:var(--success)}
+.stat-card.red{border-left-color:var(--danger)}
+.stat-card.red .stat-icon,.stat-card.red .stat-value{color:var(--danger)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--primary);color:#fff;padding:10px 12px;text-align:left;font-weight:500;white-space:nowrap}
+td{padding:8px 12px;border-bottom:1px solid var(--border)}
+tr:hover{background:#f8f9ff}
+.table-container{overflow-x:auto}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-weight:500;transition:.2s;text-decoration:none}
+.btn-primary{background:var(--primary);color:#fff}
+.btn-primary:hover{background:var(--primary-dark)}
+.btn-gold{background:var(--gold);color:#fff}
+.btn-gold:hover{background:#b8942e}
+.btn-success{background:var(--success);color:#fff}
+.btn-danger{background:var(--danger);color:#fff}
+.btn-warning{background:var(--warning);color:#fff}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--text)}
+.btn-outline:hover{background:#f5f5f5}
+.btn-sm{padding:5px 10px;font-size:12px}
+.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);z-index:200;justify-content:center;align-items:center}
+.modal.open{display:flex}
+.modal-content{background:var(--card);border-radius:12px;padding:25px;width:90%;max-width:700px;max-height:85vh;overflow-y:auto}
+.modal-title{font-size:18px;font-weight:600;margin-bottom:20px;color:var(--primary)}
+.form-group{margin-bottom:15px}
+.form-group label{display:block;font-size:13px;font-weight:500;margin-bottom:4px;color:var(--text)}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:6px;font-size:13px;transition:.2s}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(26,35,126,.1)}
+.form-group textarea{resize:vertical;min-height:60px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:15px}
+.toast{position:fixed;bottom:25px;right:25px;padding:14px 22px;border-radius:8px;color:#fff;font-size:14px;z-index:300;opacity:0;transform:translateY(20px);transition:.3s;max-width:400px}
+.toast.show{opacity:1;transform:translateY(0)}
+.toast.success{background:var(--success)}
+.toast.error{background:var(--danger)}
+.toast.info{background:var(--info)}
+.badge{padding:3px 8px;border-radius:12px;font-size:11px;font-weight:600}
+.badge-success{background:#e8f5e9;color:var(--success)}
+.badge-danger{background:#ffebee;color:var(--danger)}
+.badge-warning{background:#fff8e1;color:var(--warning)}
+.badge-info{background:#e3f2fd;color:var(--info)}
+.badge-primary{background:#e8eaf6;color:var(--primary)}
+.filters{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:15px}
+.filters input,.filters select{padding:7px 12px;border:1px solid var(--border);border-radius:6px;font-size:12px}
+.login-page{display:flex;justify-content:center;align-items:center;min-height:100vh;background:linear-gradient(135deg,var(--primary),var(--primary-dark))}
+.login-card{background:var(--card);border-radius:16px;padding:40px;width:400px;max-width:90%;box-shadow:0 10px 40px rgba(0,0,0,.3)}
+.login-card h1{color:var(--primary);font-size:24px;margin-bottom:5px;text-align:center}
+.login-card p{color:var(--text-light);font-size:13px;margin-bottom:25px;text-align:center}
+.login-card .logo{text-align:center;margin-bottom:20px}
+.login-card .logo i{font-size:48px;color:var(--gold)}
+.login-card .form-group{margin-bottom:18px}
+.login-card .btn{width:100%;justify-content:center;padding:12px}
+.chart-container{height:300px;position:relative}
+.action-bar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:15px}
+.tab-bar{display:flex;gap:2px;margin-bottom:15px;flex-wrap:wrap}
+.tab-btn{padding:8px 18px;border:1px solid var(--border);background:var(--card);cursor:pointer;font-size:13px;border-radius:6px 6px 0 0;transition:.2s}
+.tab-btn.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+.tab-content{display:none}
+.tab-content.active{display:block}
+.empty-state{text-align:center;padding:40px;color:var(--text-light)}
+.empty-state i{font-size:48px;margin-bottom:10px;opacity:.3}
+.total-box{background:#e8eaf6;padding:15px;border-radius:8px;margin-top:15px;font-size:16px;font-weight:600;display:flex;justify-content:space-between}
+@media(max-width:768px){
+  .sidebar{left:-260px}
+  .sidebar.open{left:0;width:260px}
+  .main.shifted{margin-left:0}
+  .content{padding:15px}
+  .form-row{grid-template-columns:1fr}
+  .stat-grid{grid-template-columns:1fr 1fr}
+  .topbar-title{font-size:13px}
+}
+</style>
+</head>
+<body>
+
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <h2><i class="fas fa-trophy"></i> CNS Moulay Rachid</h2>
+    <small>IRFC - Gestion intÃ©grÃ©e</small>
+  </div>
+  <div class="user-info" id="sidebarUser"><i class="fas fa-user"></i> <span id="sidebarName">-</span><br><small style="opacity:.7" id="sidebarRole">-</small></div>
+  <div id="navContainer"></div>
+</div>
+
+<div class="main" id="main">
+  <div class="topbar">
+    <div class="topbar-left">
+      <button class="menu-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+      <span class="topbar-title">CNS Moulay Rachid - IRFC</span>
+    </div>
+    <div class="topbar-right">
+      <span class="user-badge"><i class="fas fa-user"></i> <span id="topbarUser">-</span></span>
+      <span class="role-badge" id="topbarRole">-</span>
+      <button class="btn-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Quitter</button>
+    </div>
+  </div>
+
+  <div class="content" id="appContent"></div>
+</div>
+
+<div class="modal" id="modal">
+  <div class="modal-content" id="modalBody"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- Login Page -->
+<div class="login-page" id="loginPage">
+  <div class="login-card">
+    <div class="logo"><i class="fas fa-swimmer"></i></div>
+    <h1>IRFC - Moulay Rachid</h1>
+    <p>Centre National des Sports - Gestion des Prestations</p>
+    <form onsubmit="event.preventDefault();doLogin()">
+      <div class="form-group">
+        <label><i class="fas fa-envelope"></i> Email</label>
+        <input type="email" id="loginEmail" placeholder="ex: manager@irfc.ma" required>
+      </div>
+      <div class="form-group">
+        <label><i class="fas fa-lock"></i> Mot de passe</label>
+        <input type="password" id="loginPass" placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" required>
+      </div>
+      <button type="submit" class="btn btn-primary"><i class="fas fa-sign-in-alt"></i> Connexion</button>
+    </form>
+    <div style="margin-top:18px;font-size:11px;color:var(--text-light);text-align:center">
+      <strong>Comptes dÃ©mo :</strong><br>
+      manager@irfc.ma / admin123<br>
+      hebergement@irfc.ma / admin123<br>
+      installations@irfc.ma / admin123<br>
+      facturation@irfc.ma / admin123<br>
+      piscine@irfc.ma / admin123<br>
+      regisseur@irfc.ma / admin123<br>
+      recouvrement@irfc.ma / admin123
+    </div>
+  </div>
+</div>
+
+<script>
+// ====== DATA ======
+const USERS = [
+  {email:'manager@irfc.ma',pass:'admin123',name:'Admin Manager',role:'manager',roleLabel:'Manager'},
+  {email:'hebergement@irfc.ma',pass:'admin123',name:'Karim El Fassi',role:'hebergement',roleLabel:'Resp. HÃ©bergement'},
+  {email:'installations@irfc.ma',pass:'admin123',name:'Said Alaoui',role:'installations',roleLabel:'Resp. Installations'},
+  {email:'facturation@irfc.ma',pass:'admin123',name:'Nadia Benali',role:'facturation',roleLabel:'Resp. Facturation'},
+  {email:'piscine@irfc.ma',pass:'admin123',name:'Hassan Ouazzani',role:'piscine',roleLabel:'Resp. Piscine'},
+  {email:'regisseur@irfc.ma',pass:'admin123',name:'Mohammed Idrissi',role:'regisseur',roleLabel:'RÃ©gisseur'},
+  {email:'recouvrement@irfc.ma',pass:'admin123',name:'Fatima Zahra',role:'recouvrement',roleLabel:'Resp. Recouvrement'}
+];
+
+const TARIFS = {
+  hebergement:{bloc:{organisme:120,federation:100,etranger:150},hotel_chambre:{organisme:240,etranger:290},hotel_suite:{organisme:350,etranger:450}},
+  restauration:{menuA:{organisme:{pdj:50,dej:100,diner:100},federation:{pdj:45,dej:85,diner:85}},menuB:{organisme:{pdj:35,dej:75,diner:75},federation:{pdj:30,dej:70,diner:70}},pause:{choix1:50,choix2:30}},
+  salles:{amphi:{1:2000,2:3500,3:6000,4:9000},conference:{1:700,2:1300,3:1900,4:2500},cours:{1:500,2:700,3:1000,4:1500},reception:{1:1500}},
+  installations:{omnisports:{organisme:{seance_jour:1000,seance_soir:1500,demi_jour:1500,journee:2500},federation:{seance_jour:700,seance_soir:900,demi_jour:1000,journee:2000}},
+  boxe:{organisme:{seance_jour:800,seance_soir:1000,demi_jour:1200,journee:1700},federation:{seance_jour:600,seance_soir:800,demi_jour:1000,journee:1500}},
+  musculation:{organisme:{seance:900,demi_jour:1200,journee:1500},federation:{seance:700,demi_jour:1000,journee:1300}},
+  combat:{organisme:{seance_jour:1200,seance_soir:1500,demi_jour:2200,journee:3000},federation:{seance_jour:1000,seance_soir:1200,demi_jour:1700,journee:2200}},
+  halterophilie:{organisme:{seance:900,demi_jour:1200,journee:1500},federation:{seance:700,demi_jour:1000,journee:1300}},
+  gazon_synthe:{organisme:{seance_jour:1200,seance_soir:1700,demi_jour:1700,journee:2500},federation:{seance_jour:800,seance_soir:1200,demi_jour:1200,journee:2000}},
+  gazon_naturel:{organisme:{seance_jour:1500,seance_soir:2000,demi_jour:2000,journee:3000},federation:{seance_jour:1000,seance_soir:1500,demi_jour:1500,journee:2500}},
+  tennis:{organisme:{demi_jour:1200,journee:1500},federation:{demi_jour:700,journee:1000}},
+  polyvalent:{organisme:{seance:600,demi_jour:1000,journee:1500},federation:{seance:400,demi_jour:700,journee:1000}},
+  athletisme:{organisme:{seance:1000,demi_jour:1500,journee:2500},federation:{seance:800,demi_jour:1000,journee:2000}}},
+  piscine:{abonnements:{adulte:{an:3000,mois6:2100,mois3:1400,mois1:600},couple:{an:5000,mois6:3300,mois3:2000,mois1:900},etudiant:{an:2100,mois6:1350,mois3:800,mois1:350},enfant:{mois6:900,mois3:600,stage:400},asso_adulte:{an:2300,mois6:1700,mois3:1000},asso_enfant:{an:1700,mois6:1000,mois3:500},scolaire:{an:1000},fonc_adulte:{an:750,mois6:600,mois3:270,mois1:150},fonc_etudiant:{an:500,mois6:300,mois3:200},fonc_enfant:{mois6:250,mois3:150,stage:100}},
+  seances:{groupe_etudiant:60,groupe_enfant:50,individuelle:100},
+  location:{bassin_federation:{jour:5000,demi_jour:3000,heure:800},bassin_prive:{jour:7500,demi_jour:4500,heure:1200},couloir_association:500,couloir_etranger:600,plongeon_federation:500,plongeon_prive:700}},
+  blanchisserie:100,assurance:100,
+  evenements:{tonnelle:{organisme:800,federation:500},panneau:{organisme:800,federation:500}}
+};
+
+const NAV_ITEMS = {
+  manager:[
+    {id:'dashboard',icon:'fa-chart-pie',label:'Dashboard'},
+    {section:'Gestion'},
+    {id:'prestations',icon:'fa-list',label:'Situation des Prestations'},
+    {id:'hebergement',icon:'fa-bed',label:'HÃ©bergement'},
+    {id:'restauration',icon:'fa-utensils',label:'Restauration'},
+    {id:'salles',icon:'fa-chalkboard',label:'Salles & AmphithÃ©Ã¢tres'},
+    {id:'installations',icon:'fa-dumbbell',label:'Installations Sportives'},
+    {id:'piscine',icon:'fa-swimmer',label:'Piscine Olympique'},
+    {id:'lots',icon:'fa-cubes',label:'Prestations en Lots'},
+    {id:'autorisations',icon:'fa-file-signature',label:'Autorisations'},
+    {id:'clients',icon:'fa-users',label:'Clients & Demandes'},
+    {section:'Finance'},
+    {id:'factures',icon:'fa-file-invoice',label:'Facturation'},
+    {id:'paiements',icon:'fa-money-bill-wave',label:'Paiements & Situation'},
+    {id:'recouvrement',icon:'fa-hand-holding-usd',label:'Recouvrement'},
+    {section:'Services'},
+    {id:'blanchisserie',icon:'fa-tshirt',label:'Blanchisserie'},
+    {id:'evenements',icon:'fa-calendar-check',label:'Ã‰vÃ©nements'},
+    {id:'admin',icon:'fa-cog',label:'Administration'}
+  ],
+  hebergement:[
+    {id:'dashboard',icon:'fa-chart-pie',label:'Dashboard'},
+    {id:'prestations',icon:'fa-list',label:'Situation Prestations'},
+    {id:'hebergement',icon:'fa-bed',label:'HÃ©bergement'},
+    {id:'restauration',icon:'fa-utensils',label:'Restauration'},
+    {id:'blanchisserie',icon:'fa-tshirt',label:'Blanchisserie'}
+  ],
+  installations:[
+    {id:'dashboard',icon:'fa-chart-pie',label:'Dashboard'},
+    {id:'salles',icon:'fa-chalkboard',label:'Salles & AmphithÃ©Ã¢tres'},
+    {id:'installations',icon:'fa-dumbbell',label:'Installations Sportives'},
+    {id:'evenements',icon:'fa-calendar-check',label:'Ã‰vÃ©nements'}
+  ],
+  facturation:[
+    {id:'dashboard',icon:'fa-chart-pie',label:'Dashboard'},
+    {id:'prestations',icon:'fa-list',label:'Situation Prestations'},
+    {id:'factures',icon:'fa-file-invoice',label:'Facturation'},
+    {id:'paiements',icon:'fa-money-bill-wave',label:'Paiements'}
+  ],
+  piscine:[
+    {id:'dashboard',icon:'fa-chart-pie',label:'Dashboard'},
+    {id:'piscine',icon:'fa-swimmer',label:'Piscine Olympique'}
+  ],
+  regisseur:[
+    {id:'dashboard',icon:'fa-chart-pie',label:'Dashboard'},
+    {id:'paiements',icon:'fa-money-bill-wave',label:'Encaissements'},
+    {id:'factures',icon:'fa-file-invoice',label:'Factures'}
+  ],
+  recouvrement:[
+    {id:'dashboard',icon:'fa-chart-pie',label:'Dashboard'},
+    {id:'recouvrement',icon:'fa-hand-holding-usd',label:'CrÃ©ances & Recouvrement'}
+  ]
+};
+
+const DEMO_DATA = {
+  autorisations:[{id:71,organisme:'FRMF',objet:"sÃ©ance d'entrainement",prestation:'terrain naturel',periode:'08/05-02/06/2026',statut:'ApprouvÃ©e'},
+    {id:72,organisme:'FRMF',objet:'CAN U17/2026',prestation:'salle de combat',periode:'07/05-02/06/2026',statut:'ApprouvÃ©e',montant:59400},
+    {id:76,organisme:'FRMF',objet:'CAN U17/2026',prestation:'salle de cours',periode:'11/05-02/06/2026',statut:'ApprouvÃ©e',montant:16100},
+    {id:77,organisme:'SPECIAL OLYMPICS MOROCCO',objet:'HÃ©bergement',prestation:'Chambres',periode:'15/05-04/06/2026',statut:'ApprouvÃ©e',montant:3480},
+    {id:79,organisme:'FRM SPORTS HANDICAP',objet:'HÃ©bergement',prestation:'Chambres',periode:'11/05-11/06/2026',statut:'ApprouvÃ©e',montant:9900},
+    {id:82,organisme:'FRM FOOTBALL',objet:'Session formation arbitres futsal',prestation:'chambres + Install pÃ©dag + sportives',periode:'14-26/06/26',statut:'ApprouvÃ©e',montant:32900},
+    {id:85,organisme:'FRM ARTS MARTIAUX MIXTES',objet:'Formation des arbitres',prestation:'Install pÃ©dag + sportives + chambres',periode:'19-21/06/2026',statut:'ApprouvÃ©e',montant:6500},
+    {id:87,organisme:'FRM FOOTBALL',objet:"sÃ©ances d'entraÃ®nement",prestation:'Installations sportives',periode:'24-25/05/26',statut:'ApprouvÃ©e',montant:4000},
+    {id:88,organisme:'FRM FOOTBALL',objet:"sÃ©ances d'entraÃ®nement",prestation:'Installations sportives',periode:'1-5/06/26',statut:'ApprouvÃ©e',montant:5000},
+    {id:89,organisme:'SPECIAL OLYMPICS MOROCCO',objet:'HÃ©bergement',prestation:'Chambres',periode:'06/06/2026',statut:'ApprouvÃ©e',montant:120},
+    {id:90,organisme:'SPECIAL OLYMPICS MOROCCO',objet:'Stage',prestation:'Instal sportives + Chambres',periode:'10-22/06/2026',statut:'ApprouvÃ©e',montant:7680},
+    {id:93,organisme:'FRM FOOTBALL',objet:"sÃ©ances d'entraÃ®nement",prestation:'Installations sportives',periode:'4-7/06/2026',statut:'ApprouvÃ©e',montant:4000},
+    {id:95,organisme:'FRM FOOTBALL',objet:"sÃ©ances d'entraÃ®nement",prestation:'Installations sportives',periode:'6-8/06/26',statut:'ApprouvÃ©e',montant:3000},
+    {id:96,organisme:'ACADEMIE DU ROYAUME MAROCAINE',objet:'HÃ©bergement',prestation:'Chambres',periode:'11-13/06/2026',statut:'ApprouvÃ©e',montant:4320},
+    {id:97,organisme:'SPECIAL OLYMPICS MOROCCO',objet:'HÃ©bergement',prestation:'Chambres',periode:'15/06/2026',statut:'ApprouvÃ©e',montant:120},
+    {id:98,organisme:'ASSOC CLUB ITTIHAD RIADI TANGER',objet:'HÃ©bergement',prestation:'Chambres',periode:'9-11/06/2026',statut:'ApprouvÃ©e',montant:2400},
+    {id:99,organisme:'FRM FOOTBALL',objet:'Test physique',prestation:'Installations sportives',periode:'21/06/2026',statut:'ApprouvÃ©e',montant:1000},
+    {id:100,organisme:'CLUB US OUJDA RUGBY',objet:'HÃ©bergement',prestation:'Chambres',periode:'13/06/2026',statut:'ApprouvÃ©e',montant:1680},
+    {id:101,organisme:'ASSOC MAROCAINE HANDI SPORT',objet:'HÃ©bergement',prestation:'Chambres',periode:'13/06/2026',statut:'ApprouvÃ©e',montant:480},
+    {id:102,organisme:'FRM BOXE',objet:'Stage ouvert',prestation:'chambres + Installations sportives',periode:'12-30/06/2026',statut:'ApprouvÃ©e',montant:99300},
+    {id:105,organisme:'FRM SPORT HANDICAP',objet:'HÃ©bergement',prestation:'Chambres',periode:'20/06/2026',statut:'ApprouvÃ©e',montant:400},
+    {id:106,organisme:'FRM FOOTBALL Ligue SOUSS MASSA',objet:'HÃ©bergement',prestation:'Chambres',periode:'20/06/2026',statut:'ApprouvÃ©e',montant:400},
+    {id:103,organisme:'FRM NATATION',objet:'',prestation:'',statut:'AnnulÃ©e'},
+    {id:104,organisme:'FRM FOOTBALL Ligue TANGER',objet:'HÃ©bergement',prestation:'Chambres',periode:'20/06/2026',statut:'ApprouvÃ©e',montant:1000},
+    {id:107,organisme:'FRM FOOTBALL',objet:'Test physique',prestation:'Installations sportives',periode:'28/06/2026',statut:'ApprouvÃ©e',montant:1000},
+    {id:108,organisme:'FRM NATATION',objet:'',prestation:'',statut:'AnnulÃ©e'},
+    {id:109,organisme:'FRM SPORT HANDICAP',objet:'HÃ©bergement',prestation:'Chambres',periode:'26-27/06/2026',statut:'ApprouvÃ©e',montant:3600},
+    {id:110,organisme:'FRM FOOTBALL Ligue SOUSS MASSA',objet:'HÃ©bergement',prestation:'Chambres',periode:'27/06/2026',statut:'ApprouvÃ©e',montant:1000},
+    {id:111,organisme:'FRM BOXE',objet:'RÃ©union',prestation:'Install pÃ©dagogiques',periode:'25/06/2026',statut:'ApprouvÃ©e',montant:1500},
+    {id:116,organisme:'FRM NATATION Ligue LAAYOUNE',objet:'HÃ©bergement',prestation:'Chambres',periode:'27-30/06/2026',statut:'ApprouvÃ©e',montant:500}
+  ],
+  prestations:[
+    {date:'05/05/2026',arrivee:'83/2026',organisme:'FRMF',objet:"sÃ©ance d'entrainement",periode:'08/05/2026 - 02/06/2026',effectif:'***',prestations:'terrain naturel',autorisation:'71/2026',montant:0,facture:'',dateFacture:'',paiement:'',reference:'',impaye:'oui',demarches:'',observations:''},
+    {date:'05/05/2026',arrivee:'84/2026',organisme:'FRMF',objet:'CAN U17/2026',periode:'07/05/2026 - 02/06/2026',effectif:'',prestations:'salle de combat',autorisation:'72/2026',montant:59400,facture:'37-05/2026',dateFacture:'',paiement:'',reference:'',impaye:'oui',demarches:'',observations:''},
+    {date:'12/05/2026',arrivee:'88/2026',organisme:'FRMF',objet:'CAN U17/2026',periode:'11/05/2026 - 02/06/2026',effectif:'****',prestations:'salle de cours',autorisation:'76/2026',montant:16100,facture:'36-05/2026',dateFacture:'',paiement:'',reference:'',impaye:'oui',demarches:'',observations:''},
+    {date:'12/05/2026',arrivee:'89/2026',organisme:'SPECIAL OLYMPICS MOROCCO',objet:'HÃ©bergement',periode:'15/05 et 31/05 - 04/06/2026',effectif:'14',prestations:'Chambres',autorisation:'77/2026',montant:3480,facture:'07-05/2026 H',dateFacture:'',paiement:'Virement',reference:'',impaye:'',demarches:'',observations:''},
+    {date:'15/05/2026',arrivee:'91/2026',organisme:'FRM SPORTS POUR PERSONNES EN SITUATION HANDICAP',objet:'HÃ©bergement',periode:'11/05 - 11/06/2026',effectif:'15',prestations:'Chambres',autorisation:'79/2026',montant:9900,facture:'14-06/2026 H',dateFacture:'',paiement:'',reference:'',impaye:'oui',demarches:'',observations:''},
+    {date:'12/06/2026',arrivee:'114/2026',organisme:'FRM FOOTBALL',objet:'Session de formation des arbitres futsal',periode:'14-19 et 21-26/06/2026',effectif:'30',prestations:'chambres + Install pÃ©dag + Install sportives',autorisation:'82/2026 modif',montant:32900,facture:'11-05/2026 H / 34-05/2026',dateFacture:'',paiement:'',reference:'',impaye:'oui',demarches:'',observations:''},
+    {date:'18/06/2026',arrivee:'122/2026',organisme:'FRM ARTS MARTIAUX MIXTES',objet:'Formation des arbitres',periode:'19-21/06/2026',effectif:'38',prestations:'Install pÃ©dag + sportives + chambres',autorisation:'85/2026 modif',montant:6500,facture:'38-05/2026 / 13-05/2026 H',dateFacture:'',paiement:'',reference:'',impaye:'oui',demarches:'',observations:''},
+    {date:'20/05/2026',arrivee:'99/2026',organisme:'FRM FOOTBALL',objet:"sÃ©ances d'entraÃ®nement",periode:'24-25/05/2026',effectif:'*',prestations:'INSTALLATIONS SPORTIVES',autorisation:'87/2026',montant:4000,facture:'48-06/2026',dateFacture:'',paiement:'',reference:'',impaye:'oui',demarches:'',observations:''},
+    {date:'01/06/2026',arrivee:'100/2026',organisme:'FRM FOOTBALL',objet:"sÃ©ances d'entraÃ®nement",periode:'1-5/06/2026',effectif:'*',prestations:'INSTALLATIONS SPORTIVES',autorisation:'88/2026',montant:5000,facture:'41-06/2026',dateFacture:'',paiement:'',reference:'',impaye:'oui',demarches:'',observations:''},
+    {date:'01/06/2026',arrivee:'101/2026',organisme:'SPECIAL OLYMPICS MOROCCO',objet:'HÃ©bergement',periode:'06/06/2026',effectif:'2',prestations:'Chambres',autorisation:'89/2026',montant:120,facture:'02-06/2026 H',dateFacture:'',paiement:'Virement',reference:'',impaye:'',demarches:'',observations:''},
+    {date:'03/06/2026',arrivee:'103/2026',organisme:'SPECIAL OLYMPICS MOROCCO',objet:'Stage',periode:'10-22/06/2026',effectif:'7',prestations:'Installations sportives + Chambres',autorisation:'90/2026',montant:7680,facture:'40-06/2026 / 03-06/2026 H',dateFacture:'',paiement:'Virement',reference:'',impaye:'',demarches:'',observations:''},
+    {date:'04/06/2026',arrivee:'106/2026',organisme:'FRM FOOTBALL',objet:"sÃ©ances d'entraÃ®nement",periode:'4-7/06/2026',effectif:'*',prestations:'INSTALLATIONS SPORTIVES',autorisation:'93/2026',montant:4000,facture:'42-06/2026',dateFacture:'',paiement:'',reference:'',impaye:'oui',demarches:'',observations:''},
+    {date:'05/06/2026',arrivee:'108/2026',organisme:'FRM FOOTBALL',objet:"sÃ©ances d'entraÃ®nement",periode:'6-8/06/2026',effectif:'*',prestations:'INSTALLATIONS SPORTIVES',autorisation:'95/2026',montant:3000,facture:'44-06/2026',dateFacture:'',paiement:'',reference:'',impaye:'oui',demarches:'',observations:''},
+    {date:'11/06/2026',arrivee:'113/2026',organisme:'ACADEMIE DU ROYAUME MAROCAINE',objet:'HÃ©bergement',periode:'11-13/06/2026',effectif:'36',prestations:'Chambres',autorisation:'96/2026 modif',montant:4320,facture:'13-06/2026 H',dateFacture:'',paiement:'',reference:'',impaye:'oui',demarches:'',observations:'remplace autorisation 92/2026'},
+    {date:'08/06/2026',arrivee:'110/2026',organisme:'SPECIAL OLYMPICS MOROCCO',objet:'HÃ©bergement',periode:'15/06/2026',effectif:'2',prestations:'Chambres',autorisation:'97/2026',montant:120,facture:'09-06/2026 H',dateFacture:'',paiement:'Virement',reference:'',impaye:'',demarches:'',observations:''},
+    {date:'09/06/2026',arrivee:'111/2026',organisme:'ASSOC CLUB ITTIHAD RIADI TANGER',objet:'HÃ©bergement',periode:'9-11/06/2026',effectif:'18',prestations:'Chambres',autorisation:'98/2026',montant:2400,facture:'01-06/2026 H',dateFacture:'',paiement:'EspÃ¨ce',reference:'58897',impaye:'',demarches:'',observations:''},
+    {date:'11/06/2026',arrivee:'112/2026',organisme:'FRM FOOTBALL',objet:'Test physique',periode:'21/06/2026',effectif:'*',prestations:'INSTALLATIONS SPORTIVES',autorisation:'99/2026',montant:1000,facture:'46-06/2026',dateFacture:'',paiement:'',reference:'',impaye:'oui',demarches:'',observations:''},
+    {date:'12/06/2026',arrivee:'115/2026',organisme:'CLUB UNION SPORTIVE OUJDA RUGBY',objet:'HÃ©bergement',periode:'13/06/2026',effectif:'27',prestations:'Chambres',autorisation:'100/2026',montant:1680,facture:'04-06/2026 H',dateFacture:'',paiement:'Virement',reference:'',impaye:'',demarches:'',observations:''},
+    {date:'12/06/2026',arrivee:'116/2026',organisme:'ASSOC MAROCAINE HANDI SPORT',objet:'HÃ©bergement',periode:'13/06/2026',effectif:'8',prestations:'Chambres',autorisation:'101/2026',montant:480,facture:'05-06/2026 H',dateFacture:'',paiement:'Virement',reference:'',impaye:'',demarches:'',observations:''},
+    {date:'12/06/2026',arrivee:'117/2026',organisme:'FRM BOXE',objet:'Stage ouvert',periode:'12-30/06/2026',effectif:'variable',prestations:'chambres + Installations sportives',autorisation:'102/2026',montant:99300,facture:'',dateFacture:'',paiement:'',reference:'',impaye:'oui',demarches:'',observations:'+ modifications 1-4'},
+    {date:'19/06/2026',arrivee:'123/2026',organisme:'FRM SPORT HANDICAP',objet:'HÃ©bergement',periode:'20/06/2026',effectif:'6',prestations:'Chambres',autorisation:'105/2026',montant:400,facture:'11-06/2026 H',dateFacture:'',paiement:'',reference:'',impaye:'oui',demarches:'',observations:''},
+    {date:'19/06/2026',arrivee:'124/2026',organisme:'FRM FOOTBALL Ligue SOUSS MASSA',objet:'HÃ©bergement',periode:'20/06/2026',effectif:'7',prestations:'Chambres',autorisation:'106/2026',montant:400,facture:'12-06/2026 H',dateFacture:'',paiement:'EspÃ¨ce',reference:'58898',impaye:'',demarches:'',observations:''},
+    {date:'16/06/2026',arrivee:'119/2026',organisme:'FRM FOOTBALL Ligue TANGER',objet:'HÃ©bergement',periode:'20/06/2026',effectif:'20',prestations:'Chambres',autorisation:'104/2026',montant:1000,facture:'10-06/2026 H',dateFacture:'',paiement:'Virement',reference:'',impaye:'',demarches:'',observations:''},
+    {date:'19/06/2026',arrivee:'125/2026',organisme:'FRM FOOTBALL',objet:'Test physique',periode:'28/06/2026',effectif:'*',prestations:'INSTALLATIONS SPORTIVES',autorisation:'107/2026',montant:1000,facture:'47-06/2026',dateFacture:'',paiement:'',reference:'',impaye:'oui',demarches:'',observations:''},
+    {date:'23/06/2026',arrivee:'128/2026',organisme:'FRM SPORT HANDICAP',objet:'HÃ©bergement',periode:'26-27/06/2026',effectif:'36',prestations:'Chambres',autorisation:'109/2026',montant:3600,facture:'16-06/2026 H',dateFacture:'',paiement:'',reference:'',impaye:'oui',demarches:'',observations:''},
+    {date:'23/06/2026',arrivee:'129/2026',organisme:'FRM FOOTBALL Ligue SOUSS MASSA',objet:'HÃ©bergement',periode:'27/06/2026',effectif:'20',prestations:'Chambres',autorisation:'110/2026',montant:1000,facture:'17-06/2026 H',dateFacture:'',paiement:'EspÃ¨ce',reference:'58899',impaye:'',demarches:'',observations:''},
+    {date:'24/06/2026',arrivee:'130/2026',organisme:'FRM BOXE',objet:'RÃ©union',periode:'25/06/2026',effectif:'*',prestations:'Install pÃ©dagogiques',autorisation:'111/2026',montant:1500,facture:'49-06/2026',dateFacture:'',paiement:'',reference:'',impaye:'oui',demarches:'',observations:''},
+    {date:'26/06/2026',arrivee:'138/2026',organisme:'FRM NATATION Ligue LAAYOUNE',objet:'HÃ©bergement',periode:'27-30/06/2026',effectif:'3',prestations:'Chambres',autorisation:'116/2026 modif',montant:500,facture:'18-06/2026 H',dateFacture:'',paiement:'EspÃ¨ce',reference:'58900',impaye:'',demarches:'',observations:''}
+  ],
+  factures:[
+    {numero:'37-05/2026',client:'FRMF',montant:59400,statut:'ImpayÃ©e',date:'05/2026'},
+    {numero:'36-05/2026',client:'FRMF',montant:16100,statut:'ImpayÃ©e',date:'05/2026'},
+    {numero:'07-05/2026 H',client:'SPECIAL OLYMPICS MOROCCO',montant:3480,statut:'PayÃ©e',date:'05/2026'},
+    {numero:'14-06/2026 H',client:'FRM SPORTS HANDICAP',montant:9900,statut:'ImpayÃ©e',date:'06/2026'},
+    {numero:'11-05/2026 H',client:'FRM FOOTBALL',montant:18500,statut:'ImpayÃ©e',date:'05/2026'},
+    {numero:'34-05/2026',client:'FRM FOOTBALL',montant:14400,statut:'ImpayÃ©e',date:'05/2026'},
+    {numero:'38-05/2026',client:'FRM ARTS MARTIAUX',montant:2700,statut:'ImpayÃ©e',date:'05/2026'},
+    {numero:'13-05/2026 H',client:'FRM ARTS MARTIAUX',montant:3800,statut:'ImpayÃ©e',date:'05/2026'},
+    {numero:'48-06/2026',client:'FRM FOOTBALL',montant:4000,statut:'ImpayÃ©e',date:'06/2026'},
+    {numero:'41-06/2026',client:'FRM FOOTBALL',montant:5000,statut:'ImpayÃ©e',date:'06/2026'},
+    {numero:'02-06/2026 H',client:'SPECIAL OLYMPICS',montant:120,statut:'PayÃ©e',date:'06/2026'},
+    {numero:'40-06/2026',client:'SPECIAL OLYMPICS',montant:7200,statut:'PayÃ©e',date:'06/2026'},
+    {numero:'03-06/2026 H',client:'SPECIAL OLYMPICS',montant:480,statut:'PayÃ©e',date:'06/2026'},
+    {numero:'42-06/2026',client:'FRM FOOTBALL',montant:4000,statut:'ImpayÃ©e',date:'06/2026'},
+    {numero:'44-06/2026',client:'FRM FOOTBALL',montant:3000,statut:'ImpayÃ©e',date:'06/2026'},
+    {numero:'13-06/2026 H',client:'ACADEMIE ROYAUME MAROCAINE',montant:4320,statut:'ImpayÃ©e',date:'06/2026'},
+    {numero:'09-06/2026 H',client:'SPECIAL OLYMPICS',montant:120,statut:'PayÃ©e',date:'06/2026'},
+    {numero:'01-06/2026 H',client:'ASSOC ITTIHAD RIADI TANGER',montant:2400,statut:'PayÃ©e',date:'06/2026'},
+    {numero:'46-06/2026',client:'FRM FOOTBALL',montant:1000,statut:'ImpayÃ©e',date:'06/2026'},
+    {numero:'04-06/2026 H',client:'US OUJDA RUGBY',montant:1680,statut:'PayÃ©e',date:'06/2026'},
+    {numero:'05-06/2026 H',client:'ASSOC HANDI SPORT',montant:480,statut:'PayÃ©e',date:'06/2026'},
+    {numero:'11-06/2026 H',client:'FRM SPORT HANDICAP',montant:400,statut:'ImpayÃ©e',date:'06/2026'},
+    {numero:'12-06/2026 H',client:'FRM FOOTBALL LIGUE SOUSS',montant:400,statut:'PayÃ©e',date:'06/2026'},
+    {numero:'10-06/2026 H',client:'FRM FOOTBALL LIGUE TANGER',montant:1000,statut:'PayÃ©e',date:'06/2026'},
+    {numero:'47-06/2026',client:'FRM FOOTBALL',montant:1000,statut:'ImpayÃ©e',date:'06/2026'},
+    {numero:'16-06/2026 H',client:'FRM SPORT HANDICAP',montant:3600,statut:'ImpayÃ©e',date:'06/2026'},
+    {numero:'17-06/2026 H',client:'FRM FOOTBALL LIGUE SOUSS',montant:1000,statut:'PayÃ©e',date:'06/2026'},
+    {numero:'49-06/2026',client:'FRM BOXE',montant:1500,statut:'ImpayÃ©e',date:'06/2026'},
+    {numero:'18-06/2026 H',client:'FRM NATATION LAAYOUNE',montant:500,statut:'PayÃ©e',date:'06/2026'}
+  ],
+  paiements:[
+    {client:'SPECIAL OLYMPICS MOROCCO',montant:3480,date:'05/2026',mode:'Virement',reference:'VIR-001',facture:'07-05/2026 H'},
+    {client:'SPECIAL OLYMPICS MOROCCO',montant:120,date:'06/2026',mode:'Virement',reference:'VIR-002',facture:'02-06/2026 H'},
+    {client:'SPECIAL OLYMPICS MOROCCO',montant:7200,date:'06/2026',mode:'Virement',reference:'VIR-003',facture:'40-06/2026'},
+    {client:'SPECIAL OLYMPICS MOROCCO',montant:480,date:'06/2026',mode:'Virement',reference:'VIR-004',facture:'03-06/2026 H'},
+    {client:'SPECIAL OLYMPICS MOROCCO',montant:120,date:'06/2026',mode:'Virement',reference:'VIR-005',facture:'09-06/2026 H'},
+    {client:'ASSOC ITTIHAD RIADI TANGER',montant:2400,date:'06/2026',mode:'EspÃ¨ce',reference:'58897',facture:'01-06/2026 H'},
+    {client:'US OUJDA RUGBY',montant:1680,date:'06/2026',mode:'Virement',reference:'VIR-006',facture:'04-06/2026 H'},
+    {client:'ASSOC HANDI SPORT',montant:480,date:'06/2026',mode:'Virement',reference:'VIR-007',facture:'05-06/2026 H'},
+    {client:'FRM FOOTBALL LIGUE SOUSS',montant:400,date:'06/2026',mode:'EspÃ¨ce',reference:'58898',facture:'12-06/2026 H'},
+    {client:'FRM FOOTBALL LIGUE TANGER',montant:1000,date:'06/2026',mode:'Virement',reference:'VIR-008',facture:'10-06/2026 H'},
+    {client:'FRM FOOTBALL LIGUE SOUSS',montant:1000,date:'06/2026',mode:'EspÃ¨ce',reference:'58899',facture:'17-06/2026 H'},
+    {client:'FRM NATATION LAAYOUNE',montant:500,date:'06/2026',mode:'EspÃ¨ce',reference:'58900',facture:'18-06/2026 H'}
+  ]
+};
+
+// ====== STATE ======
+let currentUser = null;
+let data = {prestations:[],autorisations:[],factures:[],paiements:[],clients:[],reservations:[],commandes:[],abonnements:[],lots:[],blanchisserie:[],evenements:[]};
+let invoiceCounter = 30;
+let chartInstance = null;
+
+// ====== INIT ======
+function init() {
+  if(localStorage.getItem('irfc_data')) {
+    data = JSON.parse(localStorage.getItem('irfc_data'));
+  } else {
+    data.prestations = JSON.parse(JSON.stringify(DEMO_DATA.prestations));
+    data.autorisations = JSON.parse(JSON.stringify(DEMO_DATA.autorisations));
+    data.factures = JSON.parse(JSON.stringify(DEMO_DATA.factures));
+    data.paiements = JSON.parse(JSON.stringify(DEMO_DATA.paiements));
+    invoiceCounter = data.factures.length;
+    saveData();
+  }
+}
+
+function saveData() {localStorage.setItem('irfc_data',JSON.stringify(data))}
+
+function toast(msg,type='success'){const t=document.getElementById('toast');t.textContent=msg;t.className='toast '+type+' show';setTimeout(()=>t.classList.remove('show'),3000)}
+
+function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open')}
+
+function closeSidebar(){if(window.innerWidth<=768)document.getElementById('sidebar').classList.remove('open')}
+
+function formatMoney(n){return (n||0).toLocaleString('fr-FR')+' MAD'}
+
+function getNumFacture(){return ++invoiceCounter+'-'+new Date().getMonth()+1+'/'+new Date().getFullYear()}
+
+function calcTVA(mt){return mt*0.2}
+
+function totalTTC(mt){return mt+calcTVA(mt)}
+
+function escModal(e){if(e.target===e.currentTarget)closeModal()}
+
+function openModal(html){document.getElementById('modalBody').innerHTML=html;document.getElementById('modal').classList.add('open')}
+function closeModal(){document.getElementById('modal').classList.remove('open')}
+
+function doLogin(){
+  const e=document.getElementById('loginEmail').value.trim();
+  const p=document.getElementById('loginPass').value;
+  const u=USERS.find(x=>x.email===e&&x.pass===p);
+  if(!u){toast('Email ou mot de passe incorrect','error');return}
+  currentUser=u;
+  document.getElementById('loginPage').style.display='none';
+  document.getElementById('sidebarName').textContent=u.name;
+  document.getElementById('sidebarRole').textContent=u.roleLabel;
+  document.getElementById('topbarUser').textContent=u.name;
+  document.getElementById('topbarRole').textContent=u.roleLabel;
+  buildNav();
+  navigate('dashboard');
+  toast('Bienvenue '+u.name,'success');
+}
+
+function logout(){
+  currentUser=null;
+  document.getElementById('loginPage').style.display='flex';
+  document.getElementById('appContent').innerHTML='';
+  document.getElementById('navContainer').innerHTML='';
+  document.getElementById('sidebarUser').querySelector('span').textContent='-';
+}
+
+function buildNav(){
+  const c=document.getElementById('navContainer');
+  const items=NAV_ITEMS[currentUser.role]||NAV_ITEMS.manager;
+  c.innerHTML='';
+  items.forEach(item=>{
+    if(item.section){const d=document.createElement('div');d.className='nav-section';d.textContent=item.section;c.appendChild(d)}
+    else{const d=document.createElement('div');d.className='nav-item';d.dataset.page=item.id;
+    d.innerHTML='<i class="fas '+item.icon+'"></i> '+item.label;
+    d.onclick=()=>{navigate(item.id);closeSidebar()};c.appendChild(d)}
+  });
+}
+
+function navigate(page){
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.querySelector(`.nav-item[data-page="${page}"]`)?.classList.add('active');
+  document.getElementById('appContent').innerHTML='';
+  switch(page){
+    case'dashboard':renderDashboard();break;
+    case'prestations':renderPrestations();break;
+    case'hebergement':renderHebergement();break;
+    case'restauration':renderRestauration();break;
+    case'salles':renderSalles();break;
+    case'installations':renderInstallations();break;
+    case'piscine':renderPiscine();break;
+    case'lots':renderLots();break;
+    case'autorisations':renderAutorisations();break;
+    case'clients':renderClients();break;
+    case'factures':renderFactures();break;
+    case'paiements':renderPaiements();break;
+    case'recouvrement':renderRecouvrement();break;
+    case'blanchisserie':renderBlanchisserie();break;
+    case'evenements':renderEvenements();break;
+    case'admin':renderAdmin();break;
+    default:renderDashboard();
+  }
+}
+
+// ====== DASHBOARD ======
+function renderDashboard(){
+  const app=document.getElementById('appContent');
+  const totalCA=data.factures.reduce((s,f)=>f.statut!=='AnnulÃ©e'?s+f.montant:s,0);
+  const encaisse=data.paiements.reduce((s,p)=>s+p.montant,0);
+  const impaye=data.factures.filter(f=>f.statut==='ImpayÃ©e').reduce((s,f)=>s+f.montant,0);
+  const nbPrestations=data.prestations.length;
+  const nbImpayes=data.prestations.filter(p=>p.impaye==='oui').length;
+  const nbPayes=data.paiements.length;
+  
+  app.innerHTML=`
+    <div class="page-title">Tableau de Bord</div>
+    <div class="page-subtitle">Centre National des Sports Moulay Rachid â€” SynthÃ¨se ${new Date().toLocaleDateString('fr-FR')}</div>
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-icon"><i class="fas fa-file-invoice"></i></div><div class="stat-value">${formatMoney(totalCA)}</div><div class="stat-label">Chiffre d'affaires total</div></div>
+      <div class="stat-card gold"><div class="stat-icon"><i class="fas fa-check-circle"></i></div><div class="stat-value">${formatMoney(encaisse)}</div><div class="stat-label">Total encaissÃ©</div></div>
+      <div class="stat-card red"><div class="stat-icon"><i class="fas fa-exclamation-triangle"></i></div><div class="stat-value">${formatMoney(impaye)}</div><div class="stat-label">CrÃ©ances impayÃ©es</div></div>
+      <div class="stat-card green"><div class="stat-icon"><i class="fas fa-list"></i></div><div class="stat-value">${nbPrestations}</div><div class="stat-label">Prestations enregistrÃ©es</div></div>
+      <div class="stat-card"><div class="stat-icon"><i class="fas fa-times-circle"></i></div><div class="stat-value">${nbImpayes}</div><div class="stat-label">Paiements non effectuÃ©s</div></div>
+      <div class="stat-card gold"><div class="stat-icon"><i class="fas fa-handshake"></i></div><div class="stat-value">${nbPayes}</div><div class="stat-label">Paiements reÃ§us</div></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">RÃ©partition des impayÃ©s par organisme</div></div>
+      <div class="chart-container"><canvas id="dashboardChart"></canvas></div>
+    </div>`;
+  
+  setTimeout(()=>{
+    const orgs={};
+    data.prestations.filter(p=>p.impaye==='oui').forEach(p=>{
+      const o=p.organisme||'Non spÃ©cifiÃ©';
+      orgs[o]=(orgs[o]||0)+p.montant;
+    });
+    const labels=Object.keys(orgs);
+    const values=Object.values(orgs);
+    if(chartInstance)chartInstance.destroy();
+    const ctx=document.getElementById('dashboardChart');
+    if(ctx&&labels.length){
+      chartInstance=new Chart(ctx,{type:'bar',data:{labels,datasets:[{label:'Montant impayÃ© (MAD)',data:values,backgroundColor:'#c62828',borderRadius:6}]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}});
+    }
+  },100);
+}
+
+// ====== PRESTATIONS ======
+function renderPrestations(){
+  const app=document.getElementById('appContent');
+  let rows='';
+  data.prestations.forEach((p,i)=>{
+    const impaye=p.impaye==='oui'?'<span class="badge badge-danger">Non payÃ©</span>':'<span class="badge badge-success">PayÃ©</span>';
+    rows+=`<tr>
+      <td>${p.date||'-'}</td><td>${p.arrivee||'-'}</td><td>${p.organisme||'-'}</td><td>${p.objet||'-'}</td>
+      <td>${p.periode||'-'}</td><td>${p.effectif||'-'}</td><td>${p.prestations||'-'}</td>
+      <td>${p.autorisation||'-'}</td><td>${p.montant?formatMoney(p.montant):'-'}</td>
+      <td>${p.facture||'-'}</td><td>${p.paiement||'-'}</td><td>${p.reference||'-'}</td>
+      <td>${impaye}</td><td style="max-width:150px;font-size:11px">${p.observations||'-'}</td>
+      <td><button class="btn btn-sm btn-primary" onclick="editPrestation(${i})"><i class="fas fa-edit"></i></button>
+      <button class="btn btn-sm btn-danger" onclick="deletePrestation(${i})"><i class="fas fa-trash"></i></button></td>
+    </tr>`;
+  });
+  app.innerHTML=`
+    <div class="page-title">Situation des Prestations</div>
+    <div class="page-subtitle">CNS Moulay Rachid â€” Suivi des rÃ©servations et paiements</div>
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title"><i class="fas fa-list"></i> Liste des prestations</div>
+        <button class="btn btn-primary" onclick="addPrestation()"><i class="fas fa-plus"></i> Nouvelle prestation</button>
+      </div>
+      <div class="filters">
+        <input placeholder="Rechercher organisme..." oninput="filterPrestations(this.value)" id="prestationFilter">
+        <select onchange="filterPrestations('')"><option value="">Tous</option><option value="paye">PayÃ©</option><option value="impaye">ImpayÃ©</option></select>
+        <span style="font-size:13px;color:var(--text-light);padding:7px">Total: ${formatMoney(data.prestations.reduce((s,p)=>s+(p.montant||0),0))}</span>
+      </div>
+      <div class="table-container">
+        <table><thead><tr>
+          <th>Date</th><th>NÂ° ArrivÃ©e</th><th>Organisme</th><th>Objet</th><th>PÃ©riode</th><th>Effectif</th>
+          <th>Prestations</th><th>NÂ° Autorisation</th><th>Montant</th><th>NÂ° Facture</th><th>Paiement</th>
+          <th>RÃ©f.</th><th>Statut</th><th>Observations</th><th>Actions</th>
+        </tr></thead><tbody id="prestationTable">${rows}</tbody></table>
+      </div>
+    </div>`;
+}
+
+function filterPrestations(v){
+  const rows=document.querySelectorAll('#prestationTable tr');
+  rows.forEach(r=>{
+    const match=r.textContent.toLowerCase().includes(v.toLowerCase());
+    r.style.display=v&&!match?'none':'';
+  });
+}
+
+function addPrestation(){
+  openModal(`
+    <div class="modal-title">Nouvelle prestation</div>
+    <form onsubmit="event.preventDefault();savePrestation(-1)">
+      <div class="form-row">
+        <div class="form-group"><label>Date d'arrivÃ©e</label><input type="date" id="f_date" required></div>
+        <div class="form-group"><label>NÂ° d'arrivÃ©e</label><input id="f_arrivee" placeholder="ex: 150/2026" required></div>
+      </div>
+      <div class="form-group"><label>Organisme</label><input id="f_organisme" list="orgList" required>
+        <datalist id="orgList">${[...new Set(data.prestations.map(p=>p.organisme))].filter(Boolean).map(o=>`<option value="${o}">`).join('')}</datalist>
+      </div>
+      <div class="form-group"><label>Objet de la rÃ©servation</label><input id="f_objet" required></div>
+      <div class="form-row">
+        <div class="form-group"><label>PÃ©riode</label><input id="f_periode" placeholder="ex: 01-15/06/2026"></div>
+        <div class="form-group"><label>Effectif</label><input id="f_effectif"></div>
+      </div>
+      <div class="form-group"><label>Prestations demandÃ©es</label>
+        <select id="f_prestations">
+          <option>Chambres</option><option>Installations sportives</option><option>Salle de cours</option>
+          <option>Salle de combat</option><option>Terrain gazon naturel</option><option>Terrain gazon synthÃ©tique</option>
+          <option>Piscine</option><option>Install pÃ©dagogiques</option><option>Restauration</option>
+          <option>Blanchisserie</option><option>Location bassin</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>NÂ° Autorisation</label><input id="f_autorisation"></div>
+        <div class="form-group"><label>Montant facturÃ© (MAD)</label><input type="number" id="f_montant" step="0.01" oninput="document.getElementById('f_ttc').textContent=totalTTC(Number(this.value)).toLocaleString('fr-FR')+' MAD'"></div>
+      </div>
+      <div style="margin-bottom:15px;font-size:14px;font-weight:600">TTC (TVA 20%) : <span id="f_ttc">0 MAD</span></div>
+      <div class="form-row">
+        <div class="form-group"><label>NÂ° Facture</label><input id="f_facture"></div>
+        <div class="form-group"><label>Mode de paiement</label>
+          <select id="f_paiement"><option value="">--</option><option>EspÃ¨ce</option><option>ChÃ¨que</option><option>Virement</option></select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>NÂ° RÃ©fÃ©rence</label><input id="f_reference"></div>
+        <div class="form-group"><label>Paiement non effectuÃ©</label>
+          <select id="f_impaye"><option value="non">Non (payÃ©)</option><option value="oui">Oui (impayÃ©)</option></select>
+        </div>
+      </div>
+      <div class="form-group"><label>Observations</label><textarea id="f_observations"></textarea></div>
+      <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:20px">
+        <button type="button" class="btn btn-outline" onclick="closeModal()">Annuler</button>
+        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Enregistrer</button>
+      </div>
+    </form>
+  `);
+}
+
+function savePrestation(idx){
+  const p={date:document.getElementById('f_date').value,arrivee:document.getElementById('f_arrivee').value,
+    organisme:document.getElementById('f_organisme').value,objet:document.getElementById('f_objet').value,
+    periode:document.getElementById('f_periode').value,effectif:document.getElementById('f_effectif').value,
+    prestations:document.getElementById('f_prestations').value,autorisation:document.getElementById('f_autorisation').value,
+    montant:parseFloat(document.getElementById('f_montant').value)||0,facture:document.getElementById('f_facture').value,
+    paiement:document.getElementById('f_paiement').value,reference:document.getElementById('f_reference').value,
+    impaye:document.getElementById('f_impaye').value,observations:document.getElementById('f_observations').value};
+  if(idx===-1)data.prestations.push(p);else data.prestations[idx]=p;
+  saveData();closeModal();toast('Prestation enregistrÃ©e');renderPrestations();
+}
+
+function editPrestation(i){
+  const p=data.prestations[i];
+  openModal(`
+    <div class="modal-title">Modifier prestation</div>
+    <form onsubmit="event.preventDefault();savePrestation(${i})">
+      <div class="form-row">
+        <div class="form-group"><label>Date</label><input type="date" id="f_date" value="${p.date||''}"></div>
+        <div class="form-group"><label>NÂ° ArrivÃ©e</label><input id="f_arrivee" value="${p.arrivee||''}"></div>
+      </div>
+      <div class="form-group"><label>Organisme</label><input id="f_organisme" value="${p.organisme||''}"></div>
+      <div class="form-group"><label>Objet</label><input id="f_objet" value="${p.objet||''}"></div>
+      <div class="form-row">
+        <div class="form-group"><label>PÃ©riode</label><input id="f_periode" value="${p.periode||''}"></div>
+        <div class="form-group"><label>Effectif</label><input id="f_effectif" value="${p.effectif||''}"></div>
+      </div>
+      <div class="form-group"><label>Prestations</label><input id="f_prestations" value="${p.prestations||''}"></div>
+      <div class="form-row">
+        <div class="form-group"><label>NÂ° Autorisation</label><input id="f_autorisation" value="${p.autorisation||''}"></div>
+        <div class="form-group"><label>Montant</label><input type="number" id="f_montant" value="${p.montant||0}"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Facture</label><input id="f_facture" value="${p.facture||''}"></div>
+        <div class="form-group"><label>Paiement</label><select id="f_paiement"><option value="">--</option><option ${p.paiement==='EspÃ¨ce'?'selected':''}>EspÃ¨ce</option><option ${p.paiement==='ChÃ¨que'?'selected':''}>ChÃ¨que</option><option ${p.paiement==='Virement'?'selected':''}>Virement</option></select></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>RÃ©fÃ©rence</label><input id="f_reference" value="${p.reference||''}"></div>
+        <div class="form-group"><label>ImpayÃ©</label><select id="f_impaye"><option value="non" ${p.impaye!=='oui'?'selected':''}>Non</option><option value="oui" ${p.impaye==='oui'?'selected':''}>Oui</option></select></div>
+      </div>
+      <div class="form-group"><label>Observations</label><textarea id="f_observations">${p.observations||''}</textarea></div>
+      <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:20px">
+        <button type="button" class="btn btn-outline" onclick="closeModal()">Annuler</button>
+        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Enregistrer</button>
+      </div>
+    </form>
+  `);
+}
+
+function deletePrestation(i){
+  if(confirm('Supprimer cette prestation ?')){data.prestations.splice(i,1);saveData();renderPrestations();toast('Prestation supprimÃ©e')}
+}
+
+// ====== FACTURES ======
+function renderFactures(){
+  const app=document.getElementById('appContent');
+  let rows='';
+  data.factures.forEach((f,i)=>{
+    const badge=f.statut==='PayÃ©e'?'badge-success':f.statut==='ImpayÃ©e'?'badge-danger':'badge-warning';
+    const mtTTC=totalTTC(f.montant);
+    rows+=`<tr>
+      <td>${f.numero}</td><td>${f.client}</td><td>${formatMoney(f.montant)}</td><td>${formatMoney(calcTVA(f.montant))}</td>
+      <td><strong>${formatMoney(mtTTC)}</strong></td><td>${f.date||'-'}</td>
+      <td><span class="badge ${badge}">${f.statut}</span></td>
+      <td>
+        <button class="btn btn-sm btn-primary" onclick="editFacture(${i})"><i class="fas fa-edit"></i></button>
+        <button class="btn btn-sm btn-gold" onclick="printFacture(${i})"><i class="fas fa-print"></i></button>
+        <button class="btn btn-sm btn-danger" onclick="deleteFacture(${i})"><i class="fas fa-trash"></i></button>
+      </td>
+    </tr>`;
+  });
+  const totalHT=data.factures.reduce((s,f)=>f.statut!=='AnnulÃ©e'?s+f.montant:s,0);
+  app.innerHTML=`
+    <div class="page-title">Facturation</div>
+    <div class="page-subtitle">GÃ©nÃ©ration et suivi des factures</div>
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-value">${formatMoney(totalHT)}</div><div class="stat-label">Total HT facturÃ©</div></div>
+      <div class="stat-card gold"><div class="stat-value">${formatMoney(totalTTC(totalHT))}</div><div class="stat-label">Total TTC (TVA 20%)</div></div>
+      <div class="stat-card green"><div class="stat-value">${data.factures.filter(f=>f.statut==='PayÃ©e').length}</div><div class="stat-label">Factures payÃ©es</div></div>
+      <div class="stat-card red"><div class="stat-value">${data.factures.filter(f=>f.statut==='ImpayÃ©e').length}</div><div class="stat-label">Factures impayÃ©es</div></div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title"><i class="fas fa-file-invoice"></i> Liste des factures</div>
+        <button class="btn btn-primary" onclick="addFacture()"><i class="fas fa-plus"></i> Nouvelle facture</button>
+      </div>
+      <div class="table-container">
+        <table><thead><tr><th>NÂ° Facture</th><th>Client</th><th>Montant HT</th><th>TVA 20%</th><th>Total TTC</th><th>Date</th><th>Statut</th><th>Actions</th></tr></thead>
+        <tbody>${rows}</tbody></table>
+      </div>
+    </div>`;
+}
+
+function addFacture(){
+  openModal(`
+    <div class="modal-title">Nouvelle facture</div>
+    <form onsubmit="event.preventDefault();saveFacture(-1)">
+      <div class="form-group"><label>Client</label>
+        <select id="f_client" required><option value="">--</option>
+        ${[...new Set(data.prestations.map(p=>p.organisme))].filter(Boolean).map(o=>`<option>${o}</option>`).join('')}
+        <option>Autre</option></select>
+      </div>
+      <div class="form-group"><label>Montant HT (MAD)</label><input type="number" id="f_mt" step="0.01" required oninput="updateTVA()"></div>
+      <div id="tvaPreview" style="margin-bottom:15px;font-size:14px">
+        TVA (20%) : <strong id="tvaVal">0 MAD</strong> â€” TTC : <strong id="ttcVal">0 MAD</strong>
+      </div>
+      <div class="form-group"><label>Date</label><input type="date" id="f_dateFacture" value="${new Date().toISOString().split('T')[0]}"></div>
+      <div class="form-group"><label>Statut</label><select id="f_statut"><option>ImpayÃ©e</option><option>PayÃ©e</option><option>Partielle</option></select></div>
+      <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:20px">
+        <button type="button" class="btn btn-outline" onclick="closeModal()">Annuler</button>
+        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> CrÃ©er la facture</button>
+      </div>
+    </form>
+  `);
+}
+
+function updateTVA(){
+  const mt=parseFloat(document.getElementById('f_mt').value)||0;
+  document.getElementById('tvaVal').textContent=formatMoney(calcTVA(mt));
+  document.getElementById('ttcVal').textContent=formatMoney(totalTTC(mt));
+}
+
+function saveFacture(i){
+  const client=document.getElementById('f_client').value;
+  const mt=parseFloat(document.getElementById('f_mt').value)||0;
+  const f={numero:getNumFacture(),client,montant:mt,statut:document.getElementById('f_statut').value,date:document.getElementById('f_dateFacture').value};
+  if(i===-1)data.factures.push(f);else data.factures[i]=f;
+  saveData();closeModal();toast('Facture crÃ©Ã©e');renderFactures();
+}
+
+function editFacture(i){
+  const f=data.factures[i];
+  openModal(`
+    <div class="modal-title">Modifier facture #${f.numero}</div>
+    <form onsubmit="event.preventDefault();saveFacture(${i})">
+      <div class="form-group"><label>Client</label><input id="f_client" value="${f.client}"></div>
+      <div class="form-group"><label>Montant HT</label><input type="number" id="f_mt" value="${f.montant}" step="0.01" oninput="updateTVA()"></div>
+      <div class="form-group"><label>Date</label><input type="date" id="f_dateFacture" value="${f.date||''}"></div>
+      <div class="form-group"><label>Statut</label>
+        <select id="f_statut"><option ${f.statut==='ImpayÃ©e'?'selected':''}>ImpayÃ©e</option><option ${f.statut==='PayÃ©e'?'selected':''}>PayÃ©e</option><option ${f.statut==='Partielle'?'selected':''}>Partielle</option></select>
+      </div>
+      <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:20px">
+        <button type="button" class="btn btn-outline" onclick="closeModal()">Annuler</button>
+        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Mettre Ã  jour</button>
+      </div>
+    </form>
+  `);
+}
+
+function deleteFacture(i){
+  if(confirm('Supprimer cette facture ?')){data.factures.splice(i,1);saveData();renderFactures();toast('Facture supprimÃ©e')}
+}
+
+function printFacture(i){
+  const f=data.factures[i];
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF();
+  doc.setFontSize(18);doc.text('FACTURE',105,20,{align:'center'});
+  doc.setFontSize(10);
+  doc.text('CNS Moulay Rachid - IRFC',105,30,{align:'center'});
+  doc.text('Centre National des Sports',105,36,{align:'center'});
+  doc.line(20,40,190,40);
+  doc.setFontSize(12);
+  doc.text(`NÂ° Facture : ${f.numero}`,20,50);
+  doc.text(`Client : ${f.client}`,20,58);
+  doc.text(`Date : ${f.date||'-'}`,20,66);
+  doc.text(`Statut : ${f.statut}`,20,74);
+  doc.line(20,80,190,80);
+  doc.setFontSize(14);
+  doc.text(`Montant HT : ${formatMoney(f.montant)}`,20,90);
+  doc.text(`TVA 20% : ${formatMoney(calcTVA(f.montant))}`,20,98);
+  doc.text(`Total TTC : ${formatMoney(totalTTC(f.montant))}`,20,106);
+  doc.line(20,112,190,112);
+  doc.save(`facture_${f.numero}.pdf`);
+  toast('PDF tÃ©lÃ©chargÃ©');
+}
+// ====== PAIEMENTS ======
+function renderPaiements(){
+  const app=document.getElementById('appContent');
+  let rows='';
+  data.paiements.forEach((p,i)=>{
+    const badge=p.mode==='Virement'?'badge-info':p.mode==='EspÃ¨ce'?'badge-success':'badge-warning';
+    rows+=`<tr>
+      <td>${p.date||'-'}</td><td>${p.client||'-'}</td><td>${formatMoney(p.montant)}</td>
+      <td><span class="badge ${badge}">${p.mode||'-'}</span></td><td>${p.reference||'-'}</td><td>${p.facture||'-'}</td>
+      <td><button class="btn btn-sm btn-danger" onclick="deletePaiement(${i})"><i class="fas fa-trash"></i></button></td>
+    </tr>`;
+  });
+  const totalEncaisse=data.paiements.reduce((s,p)=>s+p.montant,0);
+  app.innerHTML=`
+    <div class="page-title">Paiements & Situation</div>
+    <div class="page-subtitle">Suivi des encaissements par mode de paiement</div>
+    <div class="stat-grid">
+      <div class="stat-card green"><div class="stat-value">${formatMoney(totalEncaisse)}</div><div class="stat-label">Total encaissÃ©</div></div>
+      <div class="stat-card"><div class="stat-value">${data.paiements.filter(p=>p.mode==='Virement').length}</div><div class="stat-label">Virements</div></div>
+      <div class="stat-card gold"><div class="stat-value">${data.paiements.filter(p=>p.mode==='EspÃ¨ce').length}</div><div class="stat-label">EspÃ¨ces</div></div>
+      <div class="stat-card gold"><div class="stat-value">${data.paiements.filter(p=>p.mode==='ChÃ¨que').length}</div><div class="stat-label">ChÃ¨ques</div></div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title"><i class="fas fa-money-bill-wave"></i> Encaissements</div>
+        <button class="btn btn-primary" onclick="addPaiement()"><i class="fas fa-plus"></i> Nouvel encaissement</button>
+      </div>
+      <div class="table-container"><table><thead><tr><th>Date</th><th>Client</th><th>Montant</th><th>Mode</th><th>RÃ©fÃ©rence</th><th>Facture</th><th>Actions</th></tr></thead>
+      <tbody>${rows}</tbody></table>
+    </div></div>`;
+}
+
+function addPaiement(){
+  openModal(`
+    <div class="modal-title">Nouvel encaissement</div>
+    <form onsubmit="event.preventDefault();savePaiement()">
+      <div class="form-group"><label>Client</label>
+        <select id="p_client" required><option value="">--</option>
+        ${[...new Set(data.prestations.map(p=>p.organisme))].filter(Boolean).map(o=>`<option>${o}</option>`).join('')}
+        ${[...new Set(data.factures.map(f=>f.client))].filter(Boolean).map(o=>`<option>${o}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Montant (MAD)</label><input type="number" id="p_montant" step="0.01" required></div>
+        <div class="form-group"><label>Date</label><input type="date" id="p_date" value="${new Date().toISOString().split('T')[0]}"></div>
+      </div>
+      <div class="form-group"><label>Mode de paiement</label>
+        <select id="p_mode" onchange="togglePaiementFields()">
+          <option>EspÃ¨ce</option><option>ChÃ¨que</option><option>Virement</option>
+        </select>
+      </div>
+      <div id="p_chequeFields" style="display:none">
+        <div class="form-row">
+          <div class="form-group"><label>NÂ° ChÃ¨que</label><input id="p_chequeNum"></div>
+          <div class="form-group"><label>Banque</label><input id="p_banque"></div>
+        </div>
+        <div class="form-group"><label>Date d'Ã©chÃ©ance</label><input type="date" id="p_echeance"></div>
+      </div>
+      <div id="p_virementFields" style="display:none">
+        <div class="form-row">
+          <div class="form-group"><label>RIB Ã©metteur</label><input id="p_rib"></div>
+          <div class="form-group"><label>Banque</label><input id="p_banqueVir"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>RÃ©fÃ©rence virement</label><input id="p_refVir" placeholder="ex: VIR-2026-001"></div>
+          <div class="form-group"><label>Date de valeur</label><input type="date" id="p_dateValeur"></div>
+        </div>
+      </div>
+      <div class="form-group"><label>Facture associÃ©e</label>
+        <select id="p_facture"><option value="">--</option>
+        ${data.factures.filter(f=>f.statut!=='PayÃ©e').map(f=>`<option value="${f.numero}">${f.numero} - ${f.client} (${formatMoney(f.montant)})</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group"><label>RÃ©fÃ©rence opÃ©ration</label><input id="p_reference" placeholder="NÂ° quittance / rÃ©cÃ©pissÃ©"></div>
+      <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:20px">
+        <button type="button" class="btn btn-outline" onclick="closeModal()">Annuler</button>
+        <button type="submit" class="btn btn-success"><i class="fas fa-check"></i> Enregistrer le paiement</button>
+      </div>
+    </form>
+  `);
+}
+
+function togglePaiementFields(){
+  const mode=document.getElementById('p_mode').value;
+  document.getElementById('p_chequeFields').style.display=mode==='ChÃ¨que'?'block':'none';
+  document.getElementById('p_virementFields').style.display=mode==='Virement'?'block':'none';
+}
+
+function savePaiement(){
+  const mode=document.getElementById('p_mode').value;
+  let ref = document.getElementById('p_reference').value;
+  if(mode==='EspÃ¨ce'&&!ref)ref='ESP-'+Date.now().toString().slice(-6);
+  if(mode==='ChÃ¨que'&&document.getElementById('p_chequeNum').value)ref='CHQ-'+document.getElementById('p_chequeNum').value;
+  if(mode==='Virement'&&document.getElementById('p_refVir').value)ref=document.getElementById('p_refVir').value;
+  const p={date:document.getElementById('p_date').value,client:document.getElementById('p_client').value,
+    montant:parseFloat(document.getElementById('p_montant').value)||0,mode,reference:ref,
+    facture:document.getElementById('p_facture').value};
+  if(p.facture){const idx=data.factures.findIndex(f=>f.numero===p.facture);if(idx>=0)data.factures[idx].statut='PayÃ©e'}
+  data.paiements.push(p);
+  const prestIdx=data.prestations.findIndex(pr=>pr.organisme===p.client&&pr.impaye==='oui');
+  if(prestIdx>=0)data.prestations[prestIdx].impaye='non';
+  saveData();closeModal();toast('Paiement enregistrÃ©');renderPaiements();
+}
+
+function deletePaiement(i){
+  if(confirm('Supprimer ce paiement ?')){data.paiements.splice(i,1);saveData();renderPaiements();toast('Paiement supprimÃ©')}
+}
+
+// ====== RECOUVREMENT ======
+function renderRecouvrement(){
+  const app=document.getElementById('appContent');
+  const impayes=data.factures.filter(f=>f.statut==='ImpayÃ©e');
+  const totalImp=impayes.reduce((s,f)=>s+f.montant,0);
+  let rows='';
+  impayes.forEach((f,i)=>{
+    rows+=`<tr>
+      <td>${f.client}</td><td>${f.numero}</td><td>${formatMoney(f.montant)}</td><td>${formatMoney(totalTTC(f.montant))}</td>
+      <td>${f.date||'-'}</td><td><span class="badge badge-danger">30+ jours</span></td>
+      <td><button class="btn btn-sm btn-warning" onclick="relance(${i})"><i class="fas fa-envelope"></i> Relancer</button>
+      <button class="btn btn-sm btn-gold" onclick="printFacture(data.factures.indexOf(f))"><i class="fas fa-print"></i></button></td>
+    </tr>`;
+  });
+  app.innerHTML=`
+    <div class="page-title">Recouvrement</div>
+    <div class="page-subtitle">Suivi des crÃ©ances et recouvrement</div>
+    <div class="stat-grid">
+      <div class="stat-card red"><div class="stat-value">${impayes.length}</div><div class="stat-label">CrÃ©ances impayÃ©es</div></div>
+      <div class="stat-card red"><div class="stat-value">${formatMoney(totalImp)}</div><div class="stat-label">Total dÃ» HT</div></div>
+      <div class="stat-card red"><div class="stat-value">${formatMoney(totalTTC(totalImp))}</div><div class="stat-label">Total dÃ» TTC</div></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title"><i class="fas fa-hand-holding-usd"></i> CrÃ©ances impayÃ©es</div></div>
+      <div class="table-container"><table><thead><tr><th>Client</th><th>Facture</th><th>Montant HT</th><th>TTC</th><th>Date</th><th>AnciennetÃ©</th><th>Actions</th></tr></thead>
+      <tbody>${rows||'<tr><td colspan="7" class="empty-state"><i class="fas fa-check-circle" style="color:var(--success)"></i><br>Aucune crÃ©ance impayÃ©e</td></tr>'}</tbody></table>
+    </div></div>`;
+}
+
+function relance(i){
+  const f=data.factures.filter(f=>f.statut==='ImpayÃ©e')[i];
+  if(confirm(`Envoyer une relance Ã  ${f.client} pour la facture ${f.numero} (${formatMoney(f.montant)}) ?`)){
+    toast(`Relance envoyÃ©e Ã  ${f.client}`,'info');
+  }
+}
+
+// ====== PLACEHOLDER MODULES ======
+function renderHebergement(){appHTML('HÃ©bergement','Gestion des chambres et rÃ©servations hÃ´teliÃ¨res','fa-bed')}
+function renderRestauration(){appHTML('Restauration','Menus A/B, commandes par client','fa-utensils')}
+function renderSalles(){appHTML('Salles & AmphithÃ©Ã¢tres','Location d\'amphithÃ©Ã¢tres, salles de confÃ©rence, cours, rÃ©ception','fa-chalkboard')}
+function renderInstallations(){appHTML('Installations Sportives','Omnisports, Boxe, Combat, Musculation, Terrains, Tennis, Piste','fa-dumbbell')}
+function renderPiscine(){appHTML('Piscine Olympique Couverte','Abonnements, sÃ©ances, location bassin/couloir/plongeon','fa-swimmer')}
+function renderLots(){appHTML('Prestations en Lots','Packages hÃ©bergement+restauration+installations avec remises','fa-cubes')}
+function renderAutorisations(){appHTML('Autorisations Administratives','Workflow demande â†’ instruction â†’ approbation/refus','fa-file-signature')}
+function renderClients(){appHTML('Clients & Demandes','Fiches clients, catÃ©gories, rÃ©clamations','fa-users')}
+function renderBlanchisserie(){appHTML('Blanchisserie','Forfait 100 MAD/7kg','fa-tshirt')}
+function renderEvenements(){appHTML('Ã‰vÃ©nements','Organisation sportifs/culturels, tonnelles, panneaux','fa-calendar-check')}
+
+function appHTML(title,subtitle,icon){
+  document.getElementById('appContent').innerHTML=`
+    <div class="page-title"><i class="fas ${icon}"></i> ${title}</div>
+    <div class="page-subtitle">${subtitle}</div>
+    <div class="card">
+      <div class="empty-state" style="padding:60px">
+        <i class="fas ${icon}" style="font-size:64px;color:var(--primary);opacity:.3"></i>
+        <h3 style="margin:15px 0;color:var(--primary)">Module ${title}</h3>
+        <p style="color:var(--text-light);max-width:500px;margin:0 auto">
+          Ce module sera dÃ©veloppÃ© dans la version complÃ¨te. Il permettra la gestion complÃ¨te des ${title.toLowerCase()} avec CRUD, recherche, filtres et export.
+        </p>
+        <button class="btn btn-primary" style="margin-top:20px" onclick="toast('Module en cours de dÃ©veloppement','info')">
+          <i class="fas fa-tools"></i> FonctionnalitÃ© Ã  venir
+        </button>
+      </div>
+    </div>`;
+}
+
+// ====== ADMIN ======
+function renderAdmin(){
+  const app=document.getElementById('appContent');
+  app.innerHTML=`
+    <div class="page-title">Administration</div>
+    <div class="page-subtitle">ParamÃ¨tres, utilisateurs, journal d'activitÃ©</div>
+    <div class="tab-bar">
+      <button class="tab-btn active" onclick="switchTab(this,'adminUsers')">Utilisateurs</button>
+      <button class="tab-btn" onclick="switchTab(this,'adminParams')">ParamÃ¨tres</button>
+      <button class="tab-btn" onclick="switchTab(this,'adminLogs')">Journal</button>
+      <button class="tab-btn" onclick="switchTab(this,'adminData')">DonnÃ©es</button>
+    </div>
+    <div id="adminUsers" class="tab-content active">
+      <div class="card">
+        <div class="card-header"><div class="card-title"><i class="fas fa-users-cog"></i> Gestion des utilisateurs</div></div>
+        <div class="table-container"><table><thead><tr><th>Nom</th><th>Email</th><th>RÃ´le</th><th>Statut</th></tr></thead>
+        <tbody>${USERS.map(u=>`<tr><td>${u.name}</td><td>${u.email}</td><td><span class="badge badge-primary">${u.roleLabel}</span></td><td><span class="badge badge-success">Actif</span></td></tr>`).join('')}</tbody></table>
+      </div>
+    </div>
+    <div id="adminParams" class="tab-content">
+      <div class="card">
+        <div class="card-header"><div class="card-title"><i class="fas fa-cog"></i> ParamÃ¨tres gÃ©nÃ©raux</div></div>
+        <div class="form-row">
+          <div class="form-group"><label>Nom du centre</label><input value="Centre National des Sports Moulay Rachid"></div>
+          <div class="form-group"><label>TVA (%)</label><input type="number" value="20"></div>
+        </div>
+        <div class="form-group"><label>Devise</label><input value="MAD (Dirham marocain)" disabled></div>
+        <button class="btn btn-primary" onclick="toast('ParamÃ¨tres sauvegardÃ©s')"><i class="fas fa-save"></i> Sauvegarder</button>
+      </div>
+    </div>
+    <div id="adminLogs" class="tab-content">
+      <div class="card">
+        <div class="card-header"><div class="card-title"><i class="fas fa-history"></i> Journal d'activitÃ©</div></div>
+        <div class="empty-state"><i class="fas fa-history"></i><p>Journal des actions (connexions, crÃ©ations, modifications)</p></div>
+      </div>
+    </div>
+    <div id="adminData" class="tab-content">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><i class="fas fa-database"></i> Gestion des donnÃ©es</div>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn btn-primary" onclick="exportJSON()"><i class="fas fa-download"></i> Export JSON</button>
+          <button class="btn btn-warning" onclick="if(confirm('RÃ©initialiser toutes les donnÃ©es ?')){localStorage.removeItem('irfc_data');init();toast('DonnÃ©es rÃ©initialisÃ©es');navigate('dashboard')}"><i class="fas fa-redo"></i> RÃ©initialiser</button>
+          <button class="btn btn-outline" onclick="toast('DonnÃ©es dÃ©mo chargÃ©es')"><i class="fas fa-database"></i> Charger donnÃ©es dÃ©mo</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+function switchTab(btn,id){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(id).classList.add('active');
+}
+
+function exportJSON(){
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='irfc_data_export.json';
+  a.click();
+  toast('Export JSON tÃ©lÃ©chargÃ©');
+}
+
+// ====== START ======
+document.addEventListener('DOMContentLoaded',()=>{
+  init();
+  document.getElementById('modal').addEventListener('click',escModal);
+  if(localStorage.getItem('irfc_logged')){} // session handled by login
+});
+</script>
+</body>
+</html>
