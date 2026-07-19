@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>IRFCJS â€“ CNS Moulay Rachid</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',sans-serif}
+:root{--p:#1a237e;--pl:#283593;--g:#c9a84c;--gl:#e0c56a;--bg:#f0f2f5;--c:#fff;--t:#333;--tl:#666;--bd:#e0e0e0;--ok:#2e7d32;--ko:#c62828;--w:#f57f17;--info:#0277bd}
+body{background:var(--bg);color:var(--t);display:flex;min-height:100vh}
+.side{width:260px;background:var(--p);color:#fff;position:fixed;height:100vh;overflow-y:auto;z-index:100;transition:.3s;left:-260px}
+.side.open{left:0}.side-hd{padding:18px;text-align:center;border-bottom:1px solid rgba(255,255,255,.1)}
+.side-hd h2{font-size:15px;color:var(--g)}.side-hd small{font-size:10px;opacity:.7}
+.side .ui{padding:10px 18px;background:rgba(255,255,255,.05);font-size:12px;border-bottom:1px solid rgba(255,255,255,.1)}
+.ni{padding:10px 18px;cursor:pointer;display:flex;align-items:center;gap:10px;font-size:12px;transition:.2s;border-left:3px solid transparent}
+.ni:hover{background:rgba(255,255,255,.1)}.ni.on{background:rgba(255,255,255,.15);border-left-color:var(--g);color:var(--g)}
+.ni i{width:18px;text-align:center}.ns{padding:12px 18px 4px;font-size:9px;text-transform:uppercase;opacity:.5;letter-spacing:1px}
+.mn{flex:1;margin-left:0;transition:.3s;width:100%}.mn.sft{margin-left:260px}
+.top{background:var(--c);padding:10px 20px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 1px 3px rgba(0,0,0,.08);position:sticky;top:0;z-index:50}
+.top-l{display:flex;align-items:center;gap:12px}.mt{background:none;border:none;font-size:20px;cursor:pointer;color:var(--p)}
+.tt{font-size:14px;font-weight:600;color:var(--p)}.top-r{display:flex;align-items:center;gap:12px;font-size:12px}
+.logout{background:none;border:1px solid var(--bd);padding:5px 12px;border-radius:6px;cursor:pointer;font-size:12px}
+.ct{padding:20px;max-width:1400px;margin:0 auto}
+.pt{font-size:19px;font-weight:600;color:var(--p);margin-bottom:3px}.ps{color:var(--tl);font-size:12px;margin-bottom:15px}
+.cd{background:var(--c);border-radius:10px;padding:18px;box-shadow:0 1px 3px rgba(0,0,0,.06);margin-bottom:15px}
+.ch{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px}
+.ct2{font-size:15px;font-weight:60}
+.fs{font-size:14px;font-weight:700;color:var(--p);margin:20px 0 12px;padding-bottom:6px;border-bottom:2px solid var(--g)}
+.sg{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:15px}
+.sc{background:var(--c);border-radius:10px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,.06);border-left:4px solid var(--p)}
+.sc .sv{font-size:22px;font-weight:700;color:var(--p)}.sc .sl{font-size:11px;color:var(--tl)}
+.sc.r{border-left-color:var(--ko)}.sc.r .sv{color:var(--ko)}.sc.g{border-left-color:var(--ok)}.sc.g .sv{color:var(--ok)}
+.sc.o{border-left-color:var(--g)}.sc.o .sv{color:var(--g)}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{background:var(--p);color:#fff;padding:8px 10px;text-align:left;font-weight:500;white-space:nowrap}
+td{padding:6px 10px;border-bottom:1px solid var(--bd)}tr:hover{background:#f8f9ff}
+.tc{overflow-x:auto}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border:none;border-radius:6px;cursor:pointer;font-size:12px;font-weight:500;transition:.2s}
+.bp{background:var(--p);color:#fff}.bp:hover{background:#0d1452}
+.bg{background:var(--g);color:#fff}.bs{background:var(--ok);color:#fff}
+.bd{background:var(--ko);color:#fff}.bw{background:var(--w);color:#fff}
+.bo{background:transparent;border:1px solid var(--bd);color:var(--t)}.bsm{padding:4px 8px;font-size:11px}
+.bl{padding:10px 24px;font-size:14px}
+.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);z-index:200;justify-content:center;align-items:center}
+.modal.open{display:flex}.mc{background:var(--c);border-radius:12px;padding:22px;width:92%;max-width:800px;max-height:85vh;overflow-y:auto}
+.mt2{font-size:17px;font-weight:600;margin-bottom:15px;color:var(--p)}
+.fg{margin-bottom:12px}.fg label{display:block;font-size:12px;font-weight:500;margin-bottom:3px}
+.fg input,.fg select,.fg textarea{width:100%;padding:7px 10px;border:1px solid var(--bd);border-radius:6px;font-size:12px;transition:.2s}
+.fg input:focus,.fg select:focus,.fg textarea:focus{outline:none;border-color:var(--p);box-shadow:0 0 0 3px rgba(26,35,126,.1)}
+.fr{display:grid;grid-template-columns:1fr 1fr;gap:12px}.fr3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.toast{position:fixed;bottom:25px;right:25px;padding:12px 20px;border-radius:8px;color:#fff;font-size:13px;z-index:300;opacity:0;transform:translateY(20px);transition:.3s;max-width:380px}
+.toast.show{opacity:1;transform:translateY(0)}.toast.ok{background:var(--ok)}.toast.err{background:var(--ko)}.toast.info{background:var(--info)}
+.badge{padding:2px 7px;border-radius:10px;font-size:10px;font-weight:600}
+.bok{background:#e8f5e9;color:var(--ok)}.bko{background:#ffebee;color:var(--ko)}.bwr{background:#fff8e1;color:var(--w)}.bif{background:#e3f2fd;color:var(--info)}
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}.filters input,.filters select{padding:6px 10px;border:1px solid var(--bd);border-radius:6px;font-size:12px}
+.login-page{display:flex;justify-content:center;align-items:center;min-height:100vh;background:linear-gradient(135deg,#0d1452,#1a237e)}
+.lc{background:var(--c);border-radius:16px;padding:35px;width:420px;max-width:92%;box-shadow:0 10px 40px rgba(0,0,0,.3)}
+.lc h1{color:var(--p);font-size:22px;text-align:center}.lc .logo{text-align:center;margin-bottom:12px}.lc .logo i{font-size:44px;color:var(--g)}
+.lc .ls{color:var(--tl);font-size:12px;text-align:center;margin-bottom:20px}
+.lc .btn{width:100%;justify-content:center;padding:10px}
+.chart-c{height:260px;position:relative}
+.tb{display:flex;gap:2px;margin-bottom:12px;flex-wrap:wrap}
+.tab{padding:7px 16px;border:1px solid var(--bd);background:var(--c);cursor:pointer;font-size:12px;border-radius:6px 6px 0 0;transition:.2s}
+.tab.on{background:var(--p);color:#fff;border-color:var(--p)}.tc2{display:none}.tc2.on{display:block}
+.empty{text-align:center;padding:40px;color:var(--tl)}.empty i{font-size:44px;opacity:.3}
+.recap{background:#e8eaf6;padding:14px;border-radius:8px;margin:12px 0;font-size:13px}
+.recap strong{color:var(--p)}.recap .big{font-size:16px;font-weight:700}
+.il{background:#f8f9ff;border:1px solid var(--bd);border-radius:8px;padding:12px;margin-bottom:8px}
+.il .row{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;align-items:end}
+.il .del{color:var(--ko);cursor:pointer;font-size:18px}
+.cg{display:flex;gap:10px;flex-wrap:wrap}.cg label{display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer}
+@media(max-width:768px){.fr,.fr3{grid-template-columns:1fr}.sg{grid-template-columns:1fr 1fr}.ct{padding:12px}.side{left:-260px;width:260px}.mn.sft{margin-left:0}}
+</style>
+</head>
+<body>
+
+<div class="side" id="side">
+  <div class="side-hd"><h2><i class="fas fa-trophy"></i> IRFCJS</h2><small>CNS Moulay Rachid</small></div>
+  <div class="ui"><i class="fas fa-user"></i> <span id="sName">-</span><br><small style="opacity:.7" id="sRole">-</small></div>
+  <div id="nav"></div>
+</div>
+
+<div class="mn" id="mn">
+  <div class="top">
+    <div class="top-l"><button class="mt" onclick="document.getElementById('side').classList.toggle('open')"><i class="fas fa-bars"></i></button><span class="tt">IRFCJS â€“ CNS Moulay Rachid</span></div>
+    <div class="top-r"><span id="tUser">-</span><span class="badge bif" id="tRole"></span><button class="logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i></button></div>
+  </div>
+  <div class="ct" id="app"></div>
+</div>
+
+<div class="modal" id="modal"><div class="mc" id="mb"></div></div>
+<div class="toast" id="toast"></div>
+
+<!-- LOGIN -->
+<div class="login-page" id="lp">
+  <div class="lc">
+    <div class="logo"><i class="fas fa-swimmer"></i></div>
+    <h1>IRFCJS</h1>
+    <p class="ls">Institut Royal de Formation des Cadres<br>Centre National des Sports Moulay Rachid</p>
+    <form onsubmit="event.preventDefault();doLogin()">
+      <div class="fg"><label><i class="fas fa-envelope"></i> Email</label><input type="email" id="lE" required></div>
+      <div class="fg"><label><i class="fas fa-lock"></i> Mot de passe</label><input type="password" id="lP" value="admin123" required></div>
+      <button type="submit" class="btn bp"><i class="fas fa-sign-in-alt"></i> Connexion</button>
+    </form>
+    <div style="margin-top:15px;font-size:10px;color:var(--tl);text-align:center"><strong>Comptes dÃ©mo :</strong><br>manager / hebergement / accueil / installations / piscine / facturation / regisseur / recouvrement / courrier / billetterie @irfcjs.ma â€” admin123</div>
+  </div>
+</div>
+
+<script>
+// ===== USERS =====
+const US=[
+  {e:'manager@irfcjs.ma',p:'admin123',n:'Admin Manager',r:'manager',l:'Manager'},
+  {e:'hebergement@irfcjs.ma',p:'admin123',n:'Karim El Fassi',r:'hebergement',l:'Resp. HÃ©bergement'},
+  {e:'accueil@irfcjs.ma',p:'admin123',n:'Fatima Benali',r:'accueil',l:'Resp. Accueil'},
+  {e:'installations@irfcjs.ma',p:'admin123',n:'Said Alaoui',r:'installations',l:'Resp. Installations'},
+  {e:'piscine@irfcjs.ma',p:'admin123',n:'Hassan Ouazzani',r:'piscine',l:'Resp. Piscine'},
+  {e:'facturation@irfcjs.ma',p:'admin123',n:'Nadia Benali',r:'facturation',l:'Resp. Facturation'},
+  {e:'regisseur@irfcjs.ma',p:'admin123',n:'Mohammed Idrissi',r:'regisseur',l:'RÃ©gisseur'},
+  {e:'recouvrement@irfcjs.ma',p:'admin123',n:'Fatima Zahra',r:'recouvrement',l:'Resp. Recouvrement'},
+  {e:'courrier@irfcjs.ma',p:'admin123',n:'Youssef Benkirane',r:'courrier',l:'Resp. Courrier'},
+  {e:'billetterie@irfcjs.ma',p:'admin123',n:'Amina Tazi',r:'billetterie',l:'Resp. Billetterie'}
+];
+
+// ===== TARIFFS =====
+const T={
+  hb:{bloc:{o:120,f:100,e:150},hc:{o:240,e:290},hs:{o:350,e:450}},
+  rst:{mA:{o:{p:50,d:100,n:100},f:{p:45,d:85,n:85}},mB:{o:{p:35,d:75,n:75},f:{p:30,d:70,n:70}},pc:{c1:50,c2:30}},
+  sal:{am:{j2:2000,j1:3500,j2d:6000,j3:9000},cf:{j2:700,j1:1300,j2d:1900,j3:2500},cr:{j2:500,j1:700,j2d:1000,j3:1500},rp:{j1:1500}},
+  ins:{
+    omni:{o:{sj:1000,ss:1500,dj:1500,j:2500},f:{sj:700,ss:900,dj:1000,j:2000}},
+    boxe:{o:{sj:800,ss:1000,dj:1200,j:1700},f:{sj:600,ss:800,dj:1000,j:1500}},
+    muscu:{o:{s:900,dj:1200,j:1500},f:{s:700,dj:1000,j:1300}},
+    combat:{o:{sj:1200,ss:1500,dj:2200,j:3000},f:{sj:1000,ss:1200,dj:1700,j:2200}},
+    halte:{o:{s:900,dj:1200,j:1500},f:{s:700,dj:1000,j:1300}},
+    gsyn:{o:{sj:1200,ss:1700,dj:1700,j:2500},f:{sj:800,ss:1200,dj:1200,j:2000}},
+    gnat:{o:{sj:1500,ss:2000,dj:2000,j:3000},f:{sj:1000,ss:1500,dj:1500,j:2500}},
+    teni:{o:{dj:1200,j:1500},f:{dj:700,j:1000}},
+    poly:{o:{s:600,dj:1000,j:1500},f:{s:400,dj:700,j:1000}},
+    athl:{o:{s:1000,dj:1500,j:2500},f:{s:800,dj:1000,j:2000}}
+  },
+  pisc:{ge:60,ge2:50,sa:100,bfj:5000,bfdj:3000,bfh:800,bpj:7500,bpdj:4500,bph:1200,ca:500,ce:600,pf:500,pp:700},
+  ann:{bl:100,tton_o:800,tton_f:500,pan_o:800,pan_f:500,ass:100}
+};
+
+const NAV={
+  manager:[{d:'dashboard',i:'fa-chart-pie',t:'Dashboard'},{s:'Formulaire'},{d:'demande',i:'fa-file-alt',t:'Demande IRFCJS'},{s:'Gestion'},{d:'prestations',i:'fa-list',t:'Prestations'},{d:'hebergement',i:'fa-bed',t:'HÃ©bergement'},{d:'heberges',i:'fa-users',t:'HÃ©bergÃ©s'},{d:'installations',i:'fa-dumbbell',t:'Installations'},{d:'piscine',i:'fa-swimmer',t:'Piscine'},{d:'lots',i:'fa-cubes',t:'Lots'},{d:'autorisation',i:'fa-file-signature',t:'Autorisations'},{d:'clients',i:'fa-users',t:'Clients'},{s:'Finance'},{d:'devis',i:'fa-calculator',t:'Devis'},{d:'factures',i:'fa-file-invoice',t:'Factures'},{d:'paiements',i:'fa-money-bill',t:'Paiements'},{d:'recouvrement',i:'fa-hand-holding-usd',t:'Recouvrement'},{s:'Services'},{d:'courrier',i:'fa-envelope',t:'Courrier'},{d:'blanchisserie',i:'fa-tshirt',t:'Blanchisserie'},{d:'evenements',i:'fa-calendar-check',t:'Ã‰vÃ©nements'},{d:'admin',i:'fa-cog',t:'Administration'}],
+  hebergement:[{d:'dashboard',i:'fa-chart-pie',t:'Dashboard'},{d:'prestations',i:'fa-list',t:'Prestations'},{d:'hebergement',i:'fa-bed',t:'HÃ©bergement'},{d:'heberges',i:'fa-users',t:'HÃ©bergÃ©s'},{d:'blanchisserie',i:'fa-tshirt',t:'Blanchisserie'}],
+  accueil:[{d:'dashboard',i:'fa-chart-pie',t:'Dashboard'},{d:'heberges',i:'fa-users',t:'Check-in/out'},{d:'hebergement',i:'fa-bed',t:'Planning'}],
+  installations:[{d:'dashboard',i:'fa-chart-pie',t:'Dashboard'},{d:'installations',i:'fa-dumbbell',t:'Programmation'},{d:'evenements',i:'fa-calendar-check',t:'Ã‰vÃ©nements'}],
+  piscine:[{d:'dashboard',i:'fa-chart-pie',t:'Dashboard'},{d:'piscine',i:'fa-swimmer',t:'Piscine'}],
+  facturation:[{d:'dashboard',i:'fa-chart-pie',t:'Dashboard'},{d:'prestations',i:'fa-list',t:'Prestations'},{d:'devis',i:'fa-calculator',t:'Devis'},{d:'factures',i:'fa-file-invoice',t:'Factures'}],
+  regisseur:[{d:'dashboard',i:'fa-chart-pie',t:'Dashboard'},{d:'paiements',i:'fa-money-bill',t:'Encaissements'}],
+  recouvrement:[{d:'dashboard',i:'fa-chart-pie',t:'Dashboard'},{d:'recouvrement',i:'fa-hand-holding-usd',t:'CrÃ©ances'}],
+  courrier:[{d:'dashboard',i:'fa-chart-pie',t:'Dashboard'},{d:'courrier',i:'fa-envelope',t:'Courrier'}],
+  billetterie:[{d:'dashboard',i:'fa-chart-pie',t:'Dashboard'},{d:'prestations',i:'fa-list',t:'Prestations'},{d:'clients',i:'fa-users',t:'Clients'}]
+};
+
+const DEMO_P=[
+  {date:'05/05/2026',na:'83/2026',org:'FRMF',obj:"sÃ©ance d'entrainement",cat:'FÃ©dÃ©ration',prest:'terrain naturel',aut:'71/2026',mt:0,fac:'',pmt:'',ref:'',imp:true,obs:''},
+  {date:'05/05/2026',na:'84/2026',org:'FRMF',obj:'CAN U17/2026',cat:'FÃ©dÃ©ration',prest:'salle de combat',aut:'72/2026',mt:59400,fac:'37-05/2026',pmt:'',ref:'',imp:true,obs:''},
+  {date:'12/05/2026',na:'89/2026',org:'SPECIAL OLYMPICS MOROCCO',obj:'HÃ©bergement',cat:'Association',prest:'Chambres bloc',aut:'77/2026',mt:3480,fac:'07-05/2026 H',pmt:'Virement',ref:'VIR-001',imp:false,obs:''},
+  {date:'15/05/2026',na:'91/2026',org:'FRM SPORTS HANDICAP',obj:'HÃ©bergement',cat:'FÃ©dÃ©ration',prest:'Chambres bloc',aut:'79/2026',mt:9900,fac:'14-06/2026 H',pmt:'',ref:'',imp:true,obs:''},
+  {date:'12/06/2026',na:'114/2026',org:'FRM FOOTBALL',obj:'Formation arbitres futsal',cat:'FÃ©dÃ©ration',prest:'chambres + salles',aut:'82/2026',mt:32900,fac:'11-05/2026 H',pmt:'',ref:'',imp:true,obs:''},
+  {date:'09/06/2026',na:'111/2026',org:'ASSOC ITTIHAD RIADI TANGER',obj:'HÃ©bergement',cat:'Association',prest:'Chambres bloc',aut:'98/2026',mt:2400,fac:'01-06/2026 H',pmt:'EspÃ¨ce',ref:'58897',imp:false,obs:''},
+  {date:'12/06/2026',na:'115/2026',org:'US OUJDA RUGBY',obj:'HÃ©bergement',cat:'Association',prest:'Chambres bloc',aut:'100/2026',mt:1680,fac:'04-06/2026 H',pmt:'Virement',ref:'VIR-006',imp:false,obs:''},
+  {date:'12/06/2026',na:'117/2026',org:'FRM BOXE',obj:'Stage ouvert',cat:'FÃ©dÃ©ration',prest:'chambres + install',aut:'102/2026',mt:99300,fac:'',pmt:'',ref:'',imp:true,obs:'+ modificatives'},
+  {date:'23/06/2026',na:'128/2026',org:'FRM SPORT HANDICAP',obj:'HÃ©bergement',cat:'FÃ©dÃ©ration',prest:'Chambres bloc',aut:'109/2026',mt:3600,fac:'16-06/2026 H',pmt:'',ref:'',imp:true,obs:''},
+  {date:'26/06/2026',na:'138/2026',org:'FRM NATATION LAAYOUNE',obj:'HÃ©bergement',cat:'FÃ©dÃ©ration',prest:'Chambres hÃ´tel',aut:'116/2026',mt:500,fac:'18-06/2026 H',pmt:'EspÃ¨ce',ref:'58900',imp:false,obs:''}
+];
+
+let CU=null, D={demandes:[],prestations:[],factures:[],paiements:[],heberges:[],courriers:[],clients:[],autorisations:[],lots:[],courrierCount:0}, ci=0;
+
+function init(){try{const d=JSON.parse(localStorage.getItem('irfc'));if(d&&d.prestations)D=d;else{D.prestations=[...DEMO_P];save()}}catch(e){D.prestations=[...DEMO_P];save()}}
+function save(){localStorage.setItem('irfc',JSON.stringify(D))}
+function $(id){return document.getElementById(id)}
+function toast(m,t='ok'){const e=$('toast');e.textContent=m;e.className='toast '+t+' show';setTimeout(()=>e.classList.remove('show'),3000)}
+function fm(n){return(n||0).toLocaleString('fr-FR')+' DH'}
+function tva(m){return Math.round(m*0.2)}
+function ttc(m){return m+tva(m)}
+function gCat(){const r=document.querySelector('input[name="cat"]:checked');if(!r)return'o';const m={FÃ©dÃ©ration:'f',Association:'o',Ã‰tranger:'e',PrivÃ©:'o',Fonctionnaire:'o'};return m[r.value]||'o'}
+function gCatLabel(){const r=document.querySelector('input[name="cat"]:checked');return r?r.value:'Organisme/Association'}
+function nFact(){return 'FACT-'+(D.factures.length+1).toString().padStart(3,'0')+'/'+new Date().getFullYear()}
+
+function doLogin(){
+  const e=$('lE').value.trim(),p=$('lP').value,u=US.find(x=>x.e===e&&x.p===p);
+  if(!u){toast('Identifiants incorrects','err');return}
+  CU=u;$('lp').style.display='none';$('sName').textContent=u.n;$('sRole').textContent=u.l;$('tUser').textContent=u.n;$('tRole').textContent=u.l;
+  buildNav();nav('dashboard');toast('Bienvenue '+u.n);
+}
+function logout(){CU=null;$('lp').style.display='flex';$('app').innerHTML='';$('nav').innerHTML=''}
+
+function buildNav(){
+  const c=$('nav'),items=NAV[CU.r]||NAV.manager;c.innerHTML='';
+  items.forEach(it=>{
+    if(it.s){const d=document.createElement('div');d.className='ns';d.textContent=it.s;c.appendChild(d)}
+    else{const d=document.createElement('div');d.className='ni';d.dataset.p=it.d;d.innerHTML='<i class="fas '+it.i+'"></i> '+it.t;
+    d.onclick=()=>{nav(it.d);if(innerWidth<=768)$('side').classList.remove('open')};c.appendChild(d)}
+  });
+}
+
+function nav(pg){
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('on'));
+  const el=document.querySelector('.ni[data-p="'+pg+'"]');if(el)el.classList.add('on');
+  $('app').innerHTML='';
+  const F={dashboard:rDash,demande:rDemande,prestations:rPrestas,hebergement:rHebergement,heberges:rHeberges,installations:rInstallations,
+    piscine:rPiscine,lots:rLots,autorisation:rAutorisation,clients:rClients,devis:rDevis,factures:rFactures,
+    paiements:rPaiements,recouvrement:rRecouvrement,courrier:rCourrier,blanchisserie:rBlanchisserie,evenements:rEvenements,admin:rAdmin};
+  (F[pg]||rDash)();
+}
+
+// ===== DASHBOARD =====
+function rDash(){
+  const tc=D.factures.reduce((s,f)=>f.st!=='AnnulÃ©e'?s+f.mt:s,0);
+  const en=D.paiements.reduce((s,p)=>s+p.mt,0);
+  const imp=D.factures.filter(f=>f.st==='ImpayÃ©e').reduce((s,f)=>s+f.mt,0);
+  $('app').innerHTML=`
+    <div class="pt">Tableau de Bord</div><div class="ps">IRFCJS â€“ CNS Moulay Rachid</div>
+    <div class="sg">
+      <div class="sc"><div class="sv">${fm(tc)}</div><div class="sl">CA Total</div></div>
+      <div class="sc g"><div class="sv">${fm(en)}</div><div class="sl">EncaissÃ©</div></div>
+      <div class="sc r"><div class="sv">${fm(imp)}</div><div class="sl">ImpayÃ©s</div></div>
+      <div class="sc o"><div class="sv">${D.prestations.length}</div><div class="sl">Prestations</div></div>
+    </div>
+    <div class="cd"><div class="chart-c"><canvas id="dc"></canvas></div></div>`;
+  setTimeout(()=>{const orgs={};D.factures.filter(f=>f.st==='ImpayÃ©e').forEach(f=>{orgs[f.cli]=(orgs[f.cli]||0)+f.mt});
+  const l=Object.keys(orgs),v=Object.values(orgs);if(l.length){const ctx=document.getElementById('dc');if(ctx)new Chart(ctx,{type:'bar',data:{labels:l,datasets:[{label:'ImpayÃ© (DH)',data:v,backgroundColor:'#c62828',borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false}})}},100);
+}
+
+// ===== DEMANDE IRFCJS =====
+function rDemande(){
+  let rows='';D.demandes.forEach((d,i)=>{
+    const s=d.st==='ApprouvÃ©e'?'bok':d.st==='RefusÃ©e'?'bko':d.st==='Soumise'?'bif':'bwr';
+    rows+=`<tr><td>${d.date||'-'}</td><td>${d.org||'-'}</td><td>${d.cat||'-'}</td><td>${fm(d.total)}</td><td><span class="badge ${s}">${d.st||'Brouillon'}</span></td><td><button class="btn bsm bp" onclick="viewDem(${i})"><i class="fas fa-eye"></i></button> <button class="btn bsm bd" onclick="delDem(${i})"><i class="fas fa-trash"></i></button></td></tr>`;
+  });
+  $('app').innerHTML=`<div class="pt">Formulaire de Demande IRFCJS</div><div class="ps">ArrÃªtÃ© conjoint nÂ° 3398-14 du 31 juillet 2014</div>
+    <div class="cd"><div class="ch"><div class="ct2"><i class="fas fa-file-alt"></i> Demandes</div><button class="btn bp" onclick="newDem()"><i class="fas fa-plus"></i> Nouvelle demande</button></div>
+    <div class="tc"><table><thead><tr><th>Date</th><th>Organisme</th><th>CatÃ©gorie</th><th>Total estimÃ©</th><th>Statut</th><th>Actions</th></tr></thead>
+    <tbody>${rows||'<tr><td colspan="6" class="empty"><i class="fas fa-file-alt"></i><br>Aucune demande</td></tr>'}</tbody></table></div></div>`;
+}
+
+function newDem(){
+  ci=0;
+  $('mb').innerHTML=`<div class="mt2"><i class="fas fa-file-alt"></i> Formulaire de Demande de Prestations â€“ IRFCJS</div>
+    <p style="font-size:11px;color:var(--tl);margin-bottom:15px">ArrÃªtÃ© conjoint nÂ° 3398-14 â€“ CNS Moulay Rachid</p>
+    <form onsubmit="event.preventDefault();calcAll();subDem()">
+    <div class="fs"><i class="fas fa-user"></i> 1. Identification du demandeur</div>
+    <div class="fr"><div class="fg"><label>Organisme *</label><input id="d_org" required></div>
+    <div class="fg"><label>Nom et qualitÃ© du responsable *</label><input id="d_resp" required></div></div>
+    <div class="fr"><div class="fg"><label>Adresse</label><input id="d_adr"></div>
+    <div class="fg"><label>TÃ©lÃ©phone *</label><input id="d_tel" required></div></div>
+    <div class="fg"><label>Email *</label><input type="email" id="d_em" required></div>
+    <div class="fg"><label>CatÃ©gorie du bÃ©nÃ©ficiaire *</label>
+    <div class="cg"><label><input type="radio" name="cat" value="FÃ©dÃ©ration" onchange="updTar()" checked> FÃ©dÃ©ration Sportive Nationale</label>
+    <label><input type="radio" name="cat" value="Association" onchange="updTar()"> Association / Organisme National</label>
+    <label><input type="radio" name="cat" value="Ã‰tranger" onchange="updTar()"> Organisme Ã‰tranger</label>
+    <label><input type="radio" name="cat" value="PrivÃ©" onchange="updTar()"> Organisme PrivÃ© (Piscine)</label>
+    <label><input type="radio" name="cat" value="Fonctionnaire" onchange="updTar()"> Fonctionnaire MJS</label></div></div>
+    <div style="font-size:12px;color:var(--p);padding:6px 10px;background:#e8eaf6;border-radius:6px;margin-bottom:12px"><i class="fas fa-info-circle"></i> Tarifs : <span id="tCat">FÃ©dÃ©ration</span></div>
+
+    <div class="fs"><i class="fas fa-bed"></i> 2. Prestations d'HÃ©bergement</div>
+    <div class="tc"><table><thead><tr><th>Type</th><th>Tarif DH</th><th>Nb pers.</th><th>Nb nuits</th><th>Total</th></tr></thead><tbody>
+    <tr><td>Bloc hÃ©bergement (Ch. 1-2 pers.)</td><td id="tb">100</td><td><input type="number" id="hb_p" style="width:60px" min="0" oninput="calcHeb()"></td><td><input type="number" id="hb_n" style="width:60px" min="0" oninput="calcHeb()"></td><td id="hb_t">0 DH</td></tr>
+    <tr><td>HÃ´tel sportifs â€“ Chambre</td><td id="tc_hc">240</td><td><input type="number" id="hc_p" style="width:60px" min="0" oninput="calcHeb()"></td><td><input type="number" id="hc_n" style="width:60px" min="0" oninput="calcHeb()"></td><td id="hc_t">0 DH</td></tr>
+    <tr><td>HÃ´tel sportifs â€“ Suite</td><td id="tc_hs">350</td><td><input type="number" id="hs_p" style="width:60px" min="0" oninput="calcHeb()"></td><td><input type="number" id="hs_n" style="width:60px" min="0" oninput="calcHeb()"></td><td id="hs_t">0 DH</td></tr>
+    </tbody></table></div>
+    <div style="text-align:right;font-weight:600;margin:8px 0">Total hÃ©bergement : <span id="tHeb">0 DH</span></div>
+
+    <div class="fs"><i class="fas fa-utensils"></i> 3. Restauration</div>
+    <div class="tc"><table><thead><tr><th>Type</th><th>Menu</th><th>Tarif</th><th>QtÃ©</th><th>Total</th></tr></thead><tbody>
+    <tr><td>Petit dÃ©jeuner</td><td><select class="msel" onchange="updRest()"><option value="A">A</option><option value="B">B</option></select></td><td id="tr_p">45</td><td><input type="number" id="r_p" style="width:60px" min="0" oninput="calcRest()"></td><td id="r_pt">0 DH</td></tr>
+    <tr><td>DÃ©jeuner</td><td><select class="msel" onchange="updRest()"><option value="A">A</option><option value="B">B</option></select></td><td id="tr_d">85</td><td><input type="number" id="r_d" style="width:60px" min="0" oninput="calcRest()"></td><td id="r_dt">0 DH</td></tr>
+    <tr><td>DÃ®ner</td><td><select class="msel" onchange="updRest()"><option value="A">A</option><option value="B">B</option></select></td><td id="tr_n">85</td><td><input type="number" id="r_n" style="width:60px" min="0" oninput="calcRest()"></td><td id="r_nt">0 DH</td></tr>
+    <tr><td>Pause cafÃ© 1er choix</td><td>â€”</td><td>50</td><td><input type="number" id="r_pc1" style="width:60px" min="0" oninput="calcRest()"></td><td id="r_pc1t">0 DH</td></tr>
+    <tr><td>Pause cafÃ© 2Ã¨me choix</td><td>â€”</td><td>30</td><td><input type="number" id="r_pc2" style="width:60px" min="0" oninput="calcRest()"></td><td id="r_pc2t">0 DH</td></tr>
+    </tbody></table></div>
+    <div style="text-align:right;font-weight:600;margin:8px 0">Total restauration : <span id="tRest">0 DH</span></div>
+
+    <div class="fs"><i class="fas fa-chalkboard"></i> 4. Salles & AmphithÃ©Ã¢tres</div>
+    <div class="tc"><table><thead><tr><th>Type</th><th>1/2j</th><th>1j</th><th>2j</th><th>3j</th><th>QtÃ©</th><th>DurÃ©e</th><th>Total</th></tr></thead><tbody>
+    <tr><td>AmphithÃ©Ã¢tre</td><td>2000</td><td>3500</td><td>6000</td><td>9000</td><td><input type="number" id="sa_q" style="width:50px" min="0" oninput="calcSal()"></td><td><select id="sa_d" onchange="calcSal()"><option value="j2">1/2j</option><option value="j1">1j</option><option value="j2d">2j</option><option value="j3">3j</option></select></td><td id="sa_t">0 DH</td></tr>
+    <tr><td>ConfÃ©rence/RÃ©union</td><td>700</td><td>1300</td><td>1900</td><td>2500</td><td><input type="number" id="sc_q" style="width:50px" min="0" oninput="calcSal()"></td><td><select id="sc_d" onchange="calcSal()"><option value="j2">1/2j</option><option value="j1">1j</option><option value="j2d">2j</option><option value="j3">3j</option></select></td><td id="sc_t">0 DH</td></tr>
+    <tr><td>Salle de cours</td><td>500</td><td>700</td><td>1000</td><td>1500</td><td><input type="number" id="sr_q" style="width:50px" min="0" oninput="calcSal()"></td><td><select id="sr_d" onchange="calcSal()"><option value="j2">1/2j</option><option value="j1">1j</option><option value="j2d">2j</option><option value="j3">3j</option></select></td><td id="sr_t">0 DH</td></tr>
+    <tr><td>RÃ©ception</td><td>â€”</td><td>1500</td><td>â€”</td><td>â€”</td><td><input type="number" id="sp_q" style="width:50px" min="0" oninput="calcSal()"></td><td><select id="sp_d" onchange="calcSal()"><option value="j1">1j</option></select></td><td id="sp_t">0 DH</td></tr>
+    </tbody></table></div>
+    <div style="text-align:right;font-weight:600;margin:8px 0">Total salles : <span id="tSal">0 DH</span></div>
+
+    <div class="fs"><i class="fas fa-dumbbell"></i> 5. Installations Sportives (hors piscine)</div>
+    <div id="iLines"></div>
+    <button type="button" class="btn bsm bo" onclick="addInst()"><i class="fas fa-plus"></i> Ajouter une installation</button>
+    <div style="text-align:right;font-weight:600;margin:8px 0">Total installations : <span id="tInst">0 DH</span></div>
+
+    <div class="fs"><i class="fas fa-swimmer"></i> 6. Piscine Olympique</div>
+    <div class="tc"><table><thead><tr><th>Prestation</th><th>Tarif</th><th>QtÃ©</th><th>Total</th></tr></thead><tbody>
+    <tr><td>Groupe Ã©tudiant (+15)</td><td>60/pers</td><td><input type="number" id="pg1" style="width:60px" min="0" oninput="calcPis()"></td><td id="pg1t">0 DH</td></tr>
+    <tr><td>Groupe enfant -14 (+15)</td><td>50/enf</td><td><input type="number" id="pg2" style="width:60px" min="0" oninput="calcPis()"></td><td id="pg2t">0 DH</td></tr>
+    <tr><td>Bassin FÃ©d. â€“ Jour</td><td>5000</td><td><input type="number" id="pb1" style="width:60px" min="0" oninput="calcPis()"></td><td id="pb1t">0 DH</td></tr>
+    <tr><td>Bassin FÃ©d. â€“ 1/2j</td><td>3000</td><td><input type="number" id="pb2" style="width:60px" min="0" oninput="calcPis()"></td><td id="pb2t">0 DH</td></tr>
+    <tr><td>Bassin PrivÃ© â€“ Jour</td><td>7500</td><td><input type="number" id="pb3" style="width:60px" min="0" oninput="calcPis()"></td><td id="pb3t">0 DH</td></tr>
+    <tr><td>Couloir Assoc. â€“ 2h</td><td>500</td><td><input type="number" id="pc1" style="width:60px" min="0" oninput="calcPis()"></td><td id="pc1t">0 DH</td></tr>
+    <tr><td>Couloir Ã‰tranger â€“ 2h</td><td>600</td><td><input type="number" id="pc2" style="width:60px" min="0" oninput="calcPis()"></td><td id="pc2t">0 DH</td></tr>
+    <tr><td>Plongeon FÃ©d. â€“ 2h</td><td>500</td><td><input type="number" id="ppf" style="width:60px" min="0" oninput="calcPis()"></td><td id="ppft">0 DH</td></tr>
+    <tr><td>Plongeon PrivÃ© â€“ 2h</td><td>700</td><td><input type="number" id="ppp" style="width:60px" min="0" oninput="calcPis()"></td><td id="pppt">0 DH</td></tr>
+    </tbody></table></div>
+    <div style="text-align:right;font-weight:600;margin:8px 0">Total piscine : <span id="tPis">0 DH</span></div>
+
+    <div class="fs"><i class="fas fa-concierge-bell"></i> 7. Services Annexes</div>
+    <div class="tc"><table><thead><tr><th>Service</th><th>Tarif</th><th>QtÃ©</th><th>Total</th></tr></thead><tbody>
+    <tr><td>Blanchisserie (7kg)</td><td>100</td><td><input type="number" id="ab" style="width:60px" min="0" oninput="calcAnn()"></td><td id="abt">0 DH</td></tr>
+    <tr><td>Tonnelle (<20mÂ²)/jour</td><td id="at_p">800</td><td><input type="number" id="at" style="width:60px" min="0" oninput="calcAnn()"></td><td id="att">0 DH</td></tr>
+    <tr><td>Panneau publicitaire (<10mÂ²)/jour</td><td id="ap_p">800</td><td><input type="number" id="ap" style="width:60px" min="0" oninput="calcAnn()"></td><td id="apt">0 DH</td></tr>
+    <tr><td>Assurance annuelle/pers</td><td>100</td><td><input type="number" id="aa" style="width:60px" min="0" oninput="calcAnn()"></td><td id="aat">0 DH</td></tr>
+    </tbody></table></div>
+    <div style="text-align:right;font-weight:600;margin:8px 0">Total annexes : <span id="tAnn">0 DH</span></div>
+
+    <div class="fs"><i class="fas fa-calculator"></i> 8. RÃ©capitulatif</div>
+    <div class="recap">
+      <div>HÃ©bergement : <strong id="rH">0 DH</strong></div>
+      <div>Restauration : <strong id="rR">0 DH</strong></div>
+      <div>Salles : <strong id="rS">0 DH</strong></div>
+      <div>Installations : <strong id="rI">0 DH</strong></div>
+      <div>Piscine : <strong id="rP">0 DH</strong></div>
+      <div>Annexes : <strong id="rA">0 DH</strong></div>
+      <hr style="margin:8px 0">
+      <div class="big">Total estimÃ© HT : <span id="rTotal">0 DH</span></div>
+      <div>TVA 20% : <span id="rTVA">0 DH</span></div>
+      <div class="big" style="color:var(--p)">Total TTC : <span id="rTTC">0 DH</span></div>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:15px">
+      <button type="button" class="btn bo" onclick="closeModal()">Annuler</button>
+      <button type="submit" class="btn bp bl"><i class="fas fa-check"></i> Soumettre la demande</button>
+    </div></form>`;
+  addInst();
+  setTimeout(updTar,50);
+}
+
+function updTar(){
+  const c=gCat();const tl=gCatLabel();$('tCat').textContent=tl;
+  $('tb').textContent=T.hb.bloc[c==='f'?'f':c==='e'?'e':'o'];
+  $('tc_hc').textContent=T.hb.hc[c==='e'?'e':'o'];$('tc_hs').textContent=T.hb.hs[c==='e'?'e':'o'];
+  $('at_p').textContent=c==='f'?500:800;$('ap_p').textContent=c==='f'?500:800;
+  updRest();updInstTar();calcAll();
+}
+
+function updRest(){
+  const c=gCat();const ms=document.querySelectorAll('.msel');const k=c==='f'?'f':'o';
+  const a=T.rst.mA[k],b=T.rst.mB[k];
+  const vals=[ms[0]?.value==='A'?a.p:b.p,ms[1]?.value==='A'?a.d:b.d,ms[2]?.value==='A'?a.n:b.n];
+  $('tr_p').textContent=vals[0];$('tr_d').textContent=vals[1];$('tr_n').textContent=vals[2];
+  calcRest();
+}
+
+let instN=0;const instKeys=[];
+function addInst(){
+  const id=instN++;instKeys.push(id);
+  const d=document.createElement('div');d.className='il';d.id='il_'+id;
+  d.innerHTML=`<div class="row">
+    <div class="fg"><label>Type</label><select id="it_${id}" onchange="updInstT(${id});calcInst()"><option value="omni">Salle Omnisports</option><option value="boxe">Salle de Boxe</option><option value="muscu">Salle de Musculation</option><option value="combat">Salle de Combat</option><option value="halte">Salle d'HaltÃ©rophilie</option><option value="gsyn">Gazon SynthÃ©tique</option><option value="gnat">Gazon Naturel</option><option value="teni">Court de Tennis</option><option value="poly">Plateaux Polyvalents</option><option value="athl">Piste AthlÃ©tisme</option></select></div>
+    <div class="fg"><label>DurÃ©e</label><select id="id_${id}" onchange="calcInst()"><option value="sj">SÃ©ance 2h Jour</option><option value="ss">SÃ©ance 2h Soir</option><option value="dj">1/2 JournÃ©e</option><option value="j">1 JournÃ©e</option></select></div>
+    <div class="fg"><label>QtÃ©</label><input type="number" id="iq_${id}" style="width:60px" min="0" oninput="calcInst()"></div>
+    <div class="fg"><label>Prix</label><span id="ip_${id}" style="padding:7px;font-size:12px">â€”</span></div>
+    <div class="fg"><label>Total</label><span id="it_${id}_t" style="padding:7px;font-weight:600">0 DH</span></div>
+    <span class="del" onclick="this.closest('.il').remove();instKeys.splice(instKeys.indexOf(${id}),1);calcInst()"><i class="fas fa-times-circle"></i></span>
+  </div>`;
+  $('iLines').appendChild(d);updInstT(id);
+}
+
+function updInstT(id){
+  const type=$('it_'+id)?.value;if(!type)return;
+  const cat=gCat();const dur=$('id_'+id)?.value||'sj';
+  const p=(T.ins[type]||{})[cat]?.[dur]||0;
+  const ip=$('ip_'+id);if(ip)ip.textContent=fm(p)+'/'+dur;calcInst();
+}
+
+function calcInst(){
+  let tot=0;instKeys.forEach(id=>{
+    const type=$('it_'+id)?.value,dur=$('id_'+id)?.value,q=parseFloat($('iq_'+id)?.value)||0;
+    if(type&&dur){const cat=gCat();const p=(T.ins[type]||{})[cat]?.[dur]||0;const s=p*q;tot+=s;
+    const te=$('it_'+id+'_t');if(te)te.textContent=fm(s)}});
+  $('tInst').textContent=fm(tot);updateRecap();
+}
+
+function calcHeb(){
+  const c=gCat(),k=c==='f'?'f':c==='e'?'e':'o';
+  const bp=parseFloat($('hb_p')?.value)||0,bn=parseFloat($('hb_n')?.value)||0;
+  const cp=parseFloat($('hc_p')?.value)||0,cn=parseFloat($('hc_n')?.value)||0;
+  const sp=parseFloat($('hs_p')?.value)||0,sn=parseFloat($('hs_n')?.value)||0;
+  const t1=T.hb.bloc[k]*bp*bn||0,t2=T.hb.hc[c==='e'?'e':'o']*cp*cn||0,t3=T.hb.hs[c==='e'?'e':'o']*sp*sn||0;
+  $('hb_t').textContent=fm(t1);$('hc_t').textContent=fm(t2);$('hs_t').textContent=fm(t3);
+  $('tHeb').textContent=fm(t1+t2+t3);updateRecap();
+}
+
+function calcRest(){
+  const q1=parseFloat($('r_p')?.value)||0,q2=parseFloat($('r_d')?.value)||0,q3=parseFloat($('r_n')?.value)||0;
+  const q4=parseFloat($('r_pc1')?.value)||0,q5=parseFloat($('r_pc2')?.value)||0;
+  const p1=parseFloat($('tr_p')?.textContent)||0,p2=parseFloat($('tr_d')?.textContent)||0,p3=parseFloat($('tr_n')?.textContent)||0;
+  const t1=q1*p1,t2=q2*p2,t3=q3*0,t4=q4*50,t5=q5*30,tot=t1+t2+t3+t4+t5;
+  $('r_pt').textContent=fm(q1*p1);$('r_dt').textContent=fm(q2*p2);$('r_nt').textContent=fm(q3*parseFloat($('tr_n')?.textContent)||0);
+  $('r_pc1t').textContent=fm(t4);$('r_pc2t').textContent=fm(t5);
+  $('tRest').textContent=fm(q1*p1+q2*p2+q3*parseFloat($('tr_n')?.textContent||0)+t4+t5);updateRecap();
+}
+
+function calcSal(){
+  const types=[['sa','am'],['sc','cf'],['sr','cr'],['sp','rp']];let tot=0;
+  types.forEach(([pfx,key])=>{
+    const q=parseFloat($(pfx+'_q')?.value)||0;const d=$(pfx+'_d')?.value;const pr=(T.sal[key]||{})[d]||0;
+    const s=q*pr;tot+=s;$(pfx+'_t').textContent=fm(s)});
+  $('tSal').textContent=fm(tot);updateRecap();
+}
+
+function calcPis(){
+  const ids=[['pg1',60],['pg2',50],['pb1',5000],['pb2',3000],['pb3',7500],['pc1',500],['pc2',600],['ppf',500],['ppp',700]];
+  let tot=0;ids.forEach(([id,p])=>{const q=parseFloat($(id)?.value)||0;const s=q*p;tot+=s;$(id+'t').textContent=fm(s)});
+  $('tPis').textContent=fm(tot);updateRecap();
+}
+
+function calcAnn(){
+  const cat=gCat();const c1=cat==='f'?500:800;
+  const ab=parseFloat($('ab')?.value)||0,at=parseFloat($('at')?.value)||0,ap=parseFloat($('ap')?.value)||0,aa=parseFloat($('aa')?.value)||0;
+  $('abt').textContent=fm(ab*100);$('att').textContent=fm(at*c1);$('apt').textContent=fm(ap*c1);$('aat').textContent=fm(aa*100);
+  $('tAnn').textContent=fm(ab*100+at*c1+ap*c1+aa*100);updateRecap();
+}
+
+function gv(id){const e=$(id);if(!e)return 0;return parseInt((e.textContent||'0').replace(/[^0-9]/g,''))||0}
+function updateRecap(){
+  const h=gv('tHeb'),r=gv('tRest'),s=gv('tSal'),i=gv('tInst'),p=gv('tPis'),a=gv('tAnn');
+  const tot=h+r+s+i+p+a;
+  $('rH').textContent=fm(h);$('rR').textContent=fm(r);$('rS').textContent=fm(s);$('rI').textContent=fm(i);$('rP').textContent=fm(p);$('rA').textContent=fm(a);
+  $('rTotal').textContent=fm(tot);$('rTVA').textContent=fm(tva(tot));$('rTTC').textContent=fm(ttc(tot));
+}
+
+function calcAll(){calcHeb();calcRest();calcSal();instKeys.forEach(id=>updInstT(id));calcInst();calcPis();calcAnn()}
+
+function subDem(){
+  const cat=gCatLabel();const total=gv('rTotal');
+  D.demandes.push({date:new Date().toLocaleDateString('fr-FR'),org:$('d_org').value,resp:$('d_resp').value,adr:$('d_adr').value,tel:$('d_tel').value,email:$('d_em').value,cat,total,st:'Soumise'});
+  save();closeModal();toast('Demande IRFCJS soumise !');rDemande();
+}
+
+function viewDem(i){
+  const d=D.demandes[i];
+  $('mb').innerHTML=`<div class="mt2">Demande IRFCJS #${i+1}</div><div style="font-size:13px">
+    <p><strong>Organisme :</strong> ${d.org}</p><p><strong>Responsable :</strong> ${d.resp}</p>
+    <p><strong>CatÃ©gorie :</strong> ${d.cat}</p><p><strong>Total estimÃ© :</strong> ${fm(d.total)}</p>
+    <p><strong>Statut :</strong> ${d.st}</p></div>
+    <div style="display:flex;gap:10px;margin-top:15px;flex-wrap:wrap">
+    <button class="btn bs" onclick="D.demandes[${i}].st='ApprouvÃ©e';save();closeModal();toast('ApprouvÃ©e');rDemande()"><i class="fas fa-check"></i> Approuver</button>
+    <button class="btn bd" onclick="D.demandes[${i}].st='RefusÃ©e';save();closeModal();toast('RefusÃ©e','err');rDemande()"><i class="fas fa-times"></i> Refuser</button>
+    <button class="btn bg" onclick="D.factures.push({cli:'${d.org}',mt:${d.total},st:'ImpayÃ©e',date:new Date().toISOString().split('T')[0],num:nFact()});save();D.demandes[${i}].st='TransformÃ©e';save();closeModal();toast('Facture crÃ©Ã©e');rDemande()"><i class="fas fa-file-invoice"></i> â†’ Facture</button>
+    <button class="btn bo" onclick="closeModal()">Fermer</button></div>`;
+}
+function delDem(i){D.demandes.splice(i,1);save();rDemande();toast('SupprimÃ©e','err')}
+
+// ===== PRESTATIONS =====
+function rPrestas(){
+  let rows='';D.prestations.forEach((p,i)=>{
+    rows+=`<tr><td>${p.date||'-'}</td><td>${p.org||'-'}</td><td>${p.obj||'-'}</td><td>${p.cat||'-'}</td><td>${p.prest||'-'}</td><td>${p.aut||'-'}</td><td>${fm(p.mt)}</td><td>${p.fac||'-'}</td><td>${p.pmt||'-'}</td><td>${p.imp?'<span class="badge bko">ImpayÃ©</span>':'<span class="badge bok">PayÃ©</span>'}</td>
+    <td><button class="btn bsm bp" onclick="edPrest(${i})"><i class="fas fa-edit"></i></button> <button class="btn bsm bd" onclick="delPrest(${i})"><i class="fas fa-trash"></i></button></td></tr>`;
+  });
+  $('app').innerHTML=`<div class="pt">Situation des Prestations</div><div class="ps">CNS Moulay Rachid</div>
+    <div class="cd"><div class="ch"><div class="ct2"><i class="fas fa-list"></i> Prestations</div><button class="btn bp" onclick="addPrest()"><i class="fas fa-plus"></i> Ajouter</button></div>
+    <div class="tc"><table><thead><tr><th>Date</th><th>Organisme</th><th>Objet</th><th>CatÃ©gorie</th><th>Prestation</th><th>NÂ° Aut.</th><th>Montant</th><th>Facture</th><th>Paiement</th><th>Statut</th><th></th></tr></thead>
+    <tbody>${rows||'<tr><td colspan="11" class="empty">Aucune</td></tr>'}</tbody></table></div></div>`;
+}
+
+function addPrest(){
+  $('mb').innerHTML=`<div class="mt2">Nouvelle prestation</div>
+    <form onsubmit="event.preventDefault();D.prestations.push({date:$('pd').value,org:$('po').value,obj:$('pj').value,cat:$('pc').value,prest:$('pp').value,aut:$('pa').value,mt:parseFloat($('pm').value)||0,fac:$('pf').value,pmt:$('ppm').value,imp:$('pi').value==='true'});save();closeModal();toast('EnregistrÃ©e');rPrestas()">
+    <div class="fr"><div class="fg"><label>Date</label><input type="date" id="pd" required></div><div class="fg"><label>Organisme</label><input id="po" required></div></div>
+    <div class="fr"><div class="fg"><label>Objet</label><input id="pj"></div><div class="fg"><label>CatÃ©gorie</label><select id="pc"><option>FÃ©dÃ©ration</option><option>Association</option><option>Ã‰tranger</option><option>Fonctionnaire</option></select></div></div>
+    <div class="fr"><div class="fg"><label>Prestation</label><input id="pp"></div><div class="fg"><label>NÂ° Autorisation</label><input id="pa"></div></div>
+    <div class="fr"><div class="fg"><label>Montant DH</label><input type="number" id="pm" step="0.01"></div><div class="fg"><label>NÂ° Facture</label><input id="pf"></div></div>
+    <div class="fr"><div class="fg"><label>Paiement</label><select id="ppm"><option value="">â€”</option><option>EspÃ¨ce</option><option>ChÃ¨que</option><option>Virement</option></select></div>
+    <div class="fg"><label>ImpayÃ©</label><select id="pi"><option value="true">Oui</option><option value="false">Non</option></select></div></div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:15px"><button type="button" class="btn bo" onclick="closeModal()">Annuler</button><button type="submit" class="btn bp"><i class="fas fa-save"></i> Enregistrer</button></div></form>`;
+}
+
+function edPrest(i){
+  const p=D.prestations[i];
+  $('mb').innerHTML=`<div class="mt2">Modifier prestation</div>
+    <form onsubmit="event.preventDefault();D.prestations[${i}].date=$('pd').value;D.prestations[${i}].org=$('po').value;D.prestations[${i}].obj=$('pj').value;D.prestations[${i}].cat=$('pc').value;D.prestations[${i}].prest=$('pp').value;D.prestations[${i}].aut=$('pa').value;D.prestations[${i}].mt=parseFloat($('pm').value)||0;D.prestations[${i}].fac=$('pf').value;D.prestations[${i}].pmt=$('ppm').value;D.prestations[${i}].imp=$('pi').value==='true';save();closeModal();toast('ModifiÃ©e');rPrestas()">
+    <div class="fr"><div class="fg"><label>Date</label><input type="date" id="pd" value="${p.date}"></div><div class="fg"><label>Organisme</label><input id="po" value="${p.org}"></div></div>
+    <div class="fr"><div class="fg"><label>Objet</label><input id="pj" value="${p.obj}"></div><div class="fg"><label>CatÃ©gorie</label><input id="pc" value="${p.cat}"></div></div>
+    <div class="fr"><div class="fg"><label>Prestation</label><input id="pp" value="${p.prest}"></div><div class="fg"><label>NÂ° Aut.</label><input id="pa" value="${p.aut}"></div></div>
+    <div class="fr"><div class="fg"><label>Montant</label><input type="number" id="pm" value="${p.mt}"></div><div class="fg"><label>Facture</label><input id="pf" value="${p.fac}"></div></div>
+    <div class="fr"><div class="fg"><label>Paiement</label><select id="ppm"><option value="">â€”</option><option ${p.pmt==='EspÃ¨ce'?'selected':''}>EspÃ¨ce</option><option ${p.pmt==='ChÃ¨que'?'selected':''}>ChÃ¨que</option><option ${p.pmt==='Virement'?'selected':''}>Virement</option></select></div>
+    <div class="fg"><label>ImpayÃ©</label><select id="pi"><option value="true" ${p.imp?'selected':''}>Oui</option><option value="false" ${!p.imp?'selected':''}>Non</option></select></div></div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:15px"><button type="button" class="btn bo" onclick="closeModal()">Annuler</button><button type="submit" class="btn bp"><i class="fas fa-save"></i> Mettre Ã  jour</button></div></form>`;
+}
+function delPrest(i){D.prestations.splice(i,1);save();rPrestas();toast('SupprimÃ©e','err')}
+
+// ===== FACTURES =====
+function rFactures(){
+  let rows='';D.factures.forEach((f,i)=>{
+    const b=f.st==='PayÃ©e'?'bok':f.st==='ImpayÃ©e'?'bko':f.st==='AnnulÃ©e'?'bwr':'bif';
+    rows+=`<tr><td>${f.num||'-'}</td><td>${f.cli||'-'}</td><td>${fm(f.mt)}</td><td>${fm(tva(f.mt))}</td><td><strong>${fm(ttc(f.mt))}</strong></td><td>${f.date||'-'}</td><td><span class="badge ${b}">${f.st}</span></td>
+    <td><button class="btn bsm bg" onclick="printF(${i})"><i class="fas fa-print"></i></button> <button class="btn bsm bd" onclick="D.factures.splice(${i},1);save();rFactures()"><i class="fas fa-trash"></i></button></td></tr>`;
+  });
+  const tH=D.factures.reduce((s,f)=>f.st!=='AnnulÃ©e'?s+f.mt:s,0);
+  $('app').innerHTML=`<div class="pt">Facturation</div><div class="ps">IRFCJS</div>
+    <div class="sg"><div class="sc"><div class="sv">${fm(tH)}</div><div class="sl">Total HT</div></div><div class="sc o"><div class="sv">${fm(ttc(tH))}</div><div class="sl">Total TTC</div></div><div class="sc g"><div class="sv">${D.factures.filter(f=>f.st==='PayÃ©e').length}</div><div class="sl">PayÃ©es</div></div><div class="sc r"><div class="sv">${D.factures.filter(f=>f.st==='ImpayÃ©e').length}</div><div class="sl">ImpayÃ©es</div></div></div>
+    <div class="cd"><div class="ch"><div class="ct2">Factures</div><button class="btn bp" onclick="addFact()"><i class="fas fa-plus"></i> Nouvelle</button></div>
+    <div class="tc"><table><thead><tr><th>NÂ°</th><th>Client</th><th>HT</th><th>TVA</th><th>TTC</th><th>Date</th><th>Statut</th><th>Actions</th></tr></thead>
+    <tbody>${rows||'<tr><td colspan="8" class="empty">Aucune</td></tr>'}</tbody></table></div></div>`;
+}
+function addFact(){
+  $('mb').innerHTML=`<div class="mt2">Nouvelle facture</div>
+    <form onsubmit="event.preventDefault();D.factures.push({num:nFact(),cli:$('fc').value,mt:parseFloat($('fm').value)||0,st:$('fs').value,date:$('fd').value});save();closeModal();toast('Facture crÃ©Ã©e');rFactures()">
+    <div class="fg"><label>Client</label><input id="fc" required></div>
+    <div class="fg"><label>Montant HT</label><input type="number" id="fm" step="0.01" required oninput="this.nextElementSibling.textContent='TTC: '+fm(ttc(parseFloat(this.value)||0))"></div><div style="font-size:13px;margin-bottom:10px">TTC: 0 DH</div>
+    <div class="fg"><label>Date</label><input type="date" id="fd" value="${new Date().toISOString().split('T')[0]}"></div>
+    <div class="fg"><label>Statut</label><select id="fs"><option>ImpayÃ©e</option><option>PayÃ©e</option></select></div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:15px"><button type="button" class="btn bo" onclick="closeModal()">Annuler</button><button type="submit" class="btn bp"><i class="fas fa-save"></i> CrÃ©er</button></div></form>`;
+}
+function printF(i){
+  const f=D.factures[i];const{jsPDF}=window.jspdf;const doc=new jsPDF();
+  doc.setFontSize(16);doc.text('FACTURE IRFCJS',105,20,{align:'center'});
+  doc.setFontSize(10);doc.text('CNS Moulay Rachid',105,28,{align:'center'});
+  doc.line(20,33,190,33);doc.setFontSize(12);
+  doc.text('NÂ°: '+f.num,20,42);doc.text('Client: '+f.cli,20,50);doc.text('Date: '+f.date,20,58);
+  doc.text('HT: '+fm(f.mt),20,68);doc.text('TVA 20%: '+fm(tva(f.mt)),20,76);doc.text('TTC: '+fm(ttc(f.mt)),20,84);
+  doc.text('Statut: '+f.st,20,92);doc.line(20,97,190,97);
+  doc.save('facture_'+f.num+'.pdf');toast('PDF tÃ©lÃ©chargÃ©');
+}
+
+// ===== PAIEMENTS =====
+function rPaiements(){
+  let rows='';D.paiements.forEach((p,i)=>{
+    const b=p.mode==='Virement'?'bif':p.mode==='EspÃ¨ce'?'bok':'bwr';
+    rows+=`<tr><td>${p.date||'-'}</td><td>${p.client||'-'}</td><td>${fm(p.mt)}</td><td><span class="badge ${b}">${p.mode}</span></td><td>${p.ref||'-'}</td><td>${p.detail||'-'}</td><td><button class="btn bsm bd" onclick="D.paiements.splice(${i},1);save();rPaiements()"><i class="fas fa-trash"></i></button></td></tr>`;
+  });
+  const tot=D.paiements.reduce((s,p)=>s+p.mt,0);
+  $('app').innerHTML=`<div class="pt">Paiements & Situation</div><div class="ps">Encaissements â€” Total : ${fm(tot)}</div>
+    <div class="sg"><div class="sc g"><div class="sv">${fm(tot)}</div><div class="sl">Total encaissÃ©</div></div><div class="sc"><div class="sv">${D.paiements.filter(p=>p.mode==='Virement').length}</div><div class="sl">Virements</div></div><div class="sc o"><div class="sv">${D.paiements.filter(p=>p.mode==='EspÃ¨ce').length}</div><div class="sl">EspÃ¨ces</div></div><div class="sc o"><div class="sv">${D.paiements.filter(p=>p.mode==='ChÃ¨que').length}</div><div class="sl">ChÃ¨ques</div></div></div>
+    <div class="cd"><div class="ch"><div class="ct2">Encaissements</div><button class="btn bp" onclick="addPmt()"><i class="fas fa-plus"></i> Nouvel encaissement</button></div>
+    <div class="tc"><table><thead><tr><th>Date</th><th>Client</th><th>Montant</th><th>Mode</th><th>RÃ©fÃ©rence</th><th>DÃ©tails</th><th></th></tr></thead>
+    <tbody>${rows||'<tr><td colspan="7" class="empty">Aucun</td></tr>'}</tbody></table></div></div>`;
+}
+
+function addPmt(){
+  $('mb').innerHTML=`<div class="mt2">Nouvel encaissement</div>
+    <form onsubmit="event.preventDefault();const d=[];const m=$('pm_mode').value;if(m==='ChÃ¨que')d.push('Chq:'+$('pm_chq').value,'Banque:'+$('pm_bq').value,'Ã‰ch:'+$('pm_ech').value);else if(m==='Virement')d.push('RIB:'+$('pm_rib').value,'RÃ©f:'+$('pm_vir').value,'Val:'+$('pm_val').value);else d.push('Quittance:'+$('pm_quit').value);
+    D.paiements.push({date:$('pm_date').value,client:$('pm_cli').value,mt:parseFloat($('pm_mt').value)||0,mode:m,ref:$('pm_ref').value||'OP-'+Date.now().toString().slice(-6),detail:d.join(', ')});const fac=D.factures.find(f=>f.cli===$('pm_cli').value&&f.st==='ImpayÃ©e');if(fac)fac.st='PayÃ©e';save();closeModal();toast('Paiement enregistrÃ©');rPaiements()">
+    <div class="fr"><div class="fg"><label>Client</label><input id="pm_cli" required></div><div class="fg"><label>Montant DH</label><input type="number" id="pm_mt" step="0.01" required></div></div>
+    <div class="fr"><div class="fg"><label>Date</label><input type="date" id="pm_date" value="${new Date().toISOString().split('T')[0]}"></div>
+    <div class="fg"><label>Mode de paiement</label><select id="pm_mode" onchange="document.getElementById('pm_details').style.display='block'"><option>EspÃ¨ce</option><option>ChÃ¨que</option><option>Virement</option></select></div></div>
+    <div id="pm_details" style="display:none">
+      <div class="fr"><div class="fg"><label>NÂ° RÃ©fÃ©rence</label><input id="pm_ref"></div>
+      <div class="fg"><label>SpÃ©cifique EspÃ¨ce</label><input id="pm_quit" placeholder="NÂ° quittance"></div></div>
+      <div style="display:none" id="pm_chq_fields"><div class="fr"><div class="fg"><label>NÂ° ChÃ¨que</label><input id="pm_chq"></div><div class="fg"><label>Banque</label><input id="pm_bq"></div></div><div class="fg"><label>Ã‰chÃ©ance</label><input type="date" id="pm_ech"></div></div>
+      <div style="display:none" id="pm_vir_fields"><div class="fr"><div class="fg"><label>RIB Ã©metteur</label><input id="pm_rib"></div><div class="fg"><label>RÃ©f. virement</label><input id="pm_vir"></div></div><div class="fg"><label>Date de valeur</label><input type="date" id="pm_val"></div></div>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:15px"><button type="button" class="btn bo" onclick="closeModal()">Annuler</button><button type="submit" class="btn bs"><i class="fas fa-check"></i> Enregistrer</button></div></form>`;
+  $('pm_mode').addEventListener('change',()=>{
+    const v=$('pm_mode').value;
+    $('pm_chq_fields').style.display=v==='ChÃ¨que'?'block':'none';
+    $('pm_vir_fields').style.display=v==='Virement'?'block':'none';
+    $('pm_quit').placeholder=v==='EspÃ¨ce'?'NÂ° quittance':'';
+  });
+}
+
+// ===== RECOUVREMENT =====
+function rRecouvrement(){
+  const imp=D.factures.filter(f=>f.st==='ImpayÃ©e');const t=imp.reduce((s,f)=>s+f.mt,0);
+  let rows='';imp.forEach((f,i)=>{rows+=`<tr><td>${f.cli}</td><td>${f.num}</td><td>${fm(f.mt)}</td><td>${fm(ttc(f.mt))}</td><td>${f.date||'-'}</td><td><span class="badge bko">En souffrance</span></td><td><button class="btn bsm bw" onclick="toast('Relance envoyÃ©e Ã  '+D.factures.filter(x=>x.st==='ImpayÃ©e')[${i}].cli,'info')"><i class="fas fa-envelope"></i></button></td></tr>`});
+  $('app').innerHTML=`<div class="pt">Recouvrement</div><div class="ps">CrÃ©ances impayÃ©es</div>
+    <div class="sg"><div class="sc r"><div class="sv">${imp.length}</div><div class="sl">CrÃ©ances</div></div><div class="sc r"><div class="sv">${fm(t)}</div><div class="sl">Total dÃ» HT</div></div><div class="sc r"><div class="sv">${fm(ttc(t))}</div><div class="sl">Total TTC</div></div></div>
+    <div class="cd"><div class="tc"><table><thead><tr><th>Client</th><th>Facture</th><th>HT</th><th>TTC</th><th>Date</th><th>AnciennetÃ©</th><th>Actions</th></tr></thead>
+    <tbody>${rows||'<tr><td colspan="7" class="empty"><i class="fas fa-check-circle" style="color:green"></i> Aucune crÃ©ance</td></tr>'}</tbody></table></div></div>`;
+}
+
+// ===== COURRIER =====
+function rCourrier(){
+  let rows='';D.courriers.forEach((c,i)=>{
+    const b=c.type==='Correspondance'?'bif':c.type==='Email'?'bok':'bwr';
+    rows+=`<tr><td>${c.num||'-'}</td><td><span class="badge ${b}">${c.type}</span></td><td>${c.date||'-'}</td><td>${c.from||'-'}</td><td>${c.obj||'-'}</td><td><span class="badge ${c.st==='ClassÃ©'?'bok':c.st==='TraitÃ©'?'bif':'bwr'}">${c.st}</span></td>
+    <td><button class="btn bsm bd" onclick="D.courriers.splice(${i},1);save();rCourrier()"><i class="fas fa-trash"></i></button></td></tr>`;
+  });
+  $('app').innerHTML=`<div class="pt">Gestion du Courrier</div><div class="ps">Correspondance, emails, appels</div>
+    <div class="cd"><div class="ch"><div class="ct2"><i class="fas fa-envelope"></i> Courrier</div><button class="btn bp" onclick="addC()"><i class="fas fa-plus"></i> Nouveau</button></div>
+    <div class="tc"><table><thead><tr><th>NÂ°</th><th>Type</th><th>Date</th><th>De/Ã€</th><th>Objet</th><th>Statut</th><th></th></tr></thead>
+    <tbody>${rows||'<tr><td colspan="7" class="empty">Aucun courrier</td></tr>'}</tbody></table></div></div>`;
+}
+function addC(){
+  D.courrierCount=(D.courrierCount||0)+1;const prefix={Correspondance:'CA',Email:'EM',Appel:'AT'};const year=new Date().getFullYear();
+  $('mb').innerHTML=`<div class="mt2">Nouveau courrier</div>
+    <form onsubmit="event.preventDefault();const t=$('c_type').value;const pre={Correspondance:'CA',Email:'EM',Appel:'AT'};D.courriers.push({num:pre[t]+'-'+year+'-'+String(D.courrierCount).padStart(3,'0'),type:t,date:$('c_date').value,from:$('c_from').value,obj:$('c_obj').value,note:$('c_note').value,st:'EnregistrÃ©'});save();closeModal();toast('Courrier enregistrÃ©');rCourrier()">
+    <div class="fr"><div class="fg"><label>Type *</label><select id="c_type" required><option>Correspondance</option><option>Email</option><option>Appel</option></select></div><div class="fg"><label>Date</label><input type="date" id="c_date" value="${new Date().toISOString().split('T')[0]}"></div></div>
+    <div class="fg"><label>ExpÃ©diteur / Appelant</label><input id="c_from"></div>
+    <div class="fg"><label>Objet</label><input id="c_obj" required></div>
+    <div class="fg"><label>Notes / Compte-rendu</label><textarea id="c_note"></textarea></div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:15px"><button type="button" class="btn bo" onclick="closeModal()">Annuler</button><button type="submit" class="btn bp"><i class="fas fa-save"></i> Enregistrer</button></div></form>`;
+}
+
+// ===== HEBERGES =====
+function rHeberges(){
+  let rows='';D.heberges.forEach((h,i)=>{
+    rows+=`<tr><td>${h.nom} ${h.prenom}</td><td>${h.typePiece}: ${h.numPiece}</td><td>${h.chambre}</td><td>${h.nationalitÃ©||'-'}</td><td>${h.checkin||'-'}</td><td>${h.checkout||'<span class="badge bwr">En cours</span>'}</td>
+    <td><button class="btn bsm bs" onclick="D.heberges[${i}].checkout=new Date().toLocaleDateString('fr-FR');save();rHeberges();toast('Check-out effectuÃ©')"><i class="fas fa-sign-out-alt"></i></button></td></tr>`;
+  });
+  $('app').innerHTML=`<div class="pt">Gestion des HÃ©bergÃ©s</div><div class="ps">Check-in/out â€“ Registre des occupants</div>
+    <div class="cd"><div class="ch"><div class="ct2"><i class="fas fa-users"></i> HÃ©bergÃ©s</div><button class="btn bp" onclick="addHeb()"><i class="fas fa-plus"></i> Check-in</button></div>
+    <div class="tc"><table><thead><tr><th>Nom</th><th>PiÃ¨ce d'identitÃ©</th><th>Chambre</th><th>NationalitÃ©</th><th>ArrivÃ©e</th><th>DÃ©part</th><th>Action</th></tr></thead>
+    <tbody>${rows||'<tr><td colspan="7" class="empty">Aucun hÃ©bergÃ©</td></tr>'}</tbody></table></div></div>`;
+}
+function addHeb(){
+  $('mb').innerHTML=`<div class="mt2">Check-in â€“ Fiche d'hÃ©bergement</div>
+    <form onsubmit="event.preventDefault();D.heberges.push({nom:$('hn').value,prenom:$('hpr').value,sexe:$('hs').value,dn:$('hdn').value,nationalitÃ©:$('hnati').value,typePiece:$('htp').value,numPiece:$('hnp').value,chambre:$('hc').value,checkin:new Date().toLocaleDateString('fr-FR'),checkout:''});save();closeModal();toast('Check-in enregistrÃ©');rHeberges()">
+    <div class="fr"><div class="fg"><label>Nom *</label><input id="hn" required></div><div class="fg"><label>PrÃ©nom *</label><input id="hpr" required></div></div>
+    <div class="fr"><div class="fg"><label>Sexe</label><select id="hs"><option>Homme</option><option>Femme</option></select></div><div class="fg"><label>Date de naissance</label><input type="date" id="hdn"></div></div>
+    <div class="fr"><div class="fg"><label>NationalitÃ©</label><input id="hnati" value="Marocaine"></div><div class="fg"><label>Type de piÃ¨ce</label><select id="htp"><option>CIN</option><option>Passeport</option></select></div></div>
+    <div class="fr"><div class="fg"><label>NÂ° PiÃ¨ce *</label><input id="hnp" required></div><div class="fg"><label>Chambre *</label><input id="hc" required></div></div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:15px"><button type="button" class="btn bo" onclick="closeModal()">Annuler</button><button type="submit" class="btn bp"><i class="fas fa-check"></i> Check-in</button></div></form>`;
+}
+
+// ===== PLACEHOLDER MODULES =====
+function rHebergement(){sp('HÃ©bergement','Programmation et occupation des chambres','fa-bed')}
+function rInstallations(){sp('Installations Sportives','Programmation groupÃ©e','fa-dumbbell')}
+function rPiscine(){sp('Piscine Olympique','Abonnements et locations','fa-swimmer')}
+function rLots(){sp('Prestations en Lots','Packages avec remises','fa-cubes')}
+function rAutorisation(){sp('Autorisations Administratives','Workflow de validation','fa-file-signature')}
+function rClients(){sp('Clients & Demandes','Fiches clients','fa-users')}
+function rDevis(){sp('Devis','Calcul automatique HT/TVA/TTC','fa-calculator')}
+function rBlanchisserie(){sp('Blanchisserie','Forfait 100 DH/7kg','fa-tshirt')}
+function rEvenements(){sp('Ã‰vÃ©nements','Tonnelle, panneaux','fa-calendar-check')}
+function rAdmin(){sp('Administration','ParamÃ¨tres et utilisateurs','fa-cog')}
+function sp(t,s,icon){$('app').innerHTML=`<div class="pt"><i class="fas ${icon}"></i> ${t}</div><div class="ps">${s}</div><div class="cd"><div class="empty" style="padding:50px"><i class="fas ${icon}" style="font-size:56px;color:var(--p);opacity:.3"></i><h3 style="margin:12px 0;color:var(--p)">${t}</h3><p style="color:var(--tl)">Module disponible dans la version complÃ¨te</p><button class="btn bp" style="margin-top:15px" onclick="toast('En dÃ©veloppement','info')"><i class="fas fa-tools"></i> Ã€ venir</button></div></div>`}
+
+// ===== MODAL / UTILS =====
+function closeModal(){$('modal').classList.remove('open')}
+document.addEventListener('DOMContentLoaded',()=>{init();$('modal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeModal()})});
+</script>
+</body>
+</html>
